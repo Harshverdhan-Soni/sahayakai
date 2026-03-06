@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAHAYAK-AI — Architecture & Feasibility Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --saffron: #FF8C00;
+    --saffron-dim: rgba(255,140,0,0.12);
+    --green: #138808;
+    --green-dim: rgba(19,136,8,0.1);
+    --blue: #0D3E82;
+    --blue-bright: #1565C0;
+    --navy: #071E3D;
+    --navy2: #0A2647;
+    --steel: #1A3A5C;
+    --smoke: #F4F6FB;
+    --mid: #8A9BB0;
+    --white: #FFFFFF;
+    --red: #C0392B;
+    --gold: #D4A017;
+    --amber-glow: rgba(255,140,0,0.06);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--navy);
+    color: var(--smoke);
+    font-family: 'Crimson Pro', serif;
+    font-size: 17px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    background: linear-gradient(135deg, #071E3D 0%, #0A2647 60%, #0D3E82 100%);
+    border-bottom: 3px solid var(--saffron);
+    padding: 48px 60px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,140,0,0.15) 0%, transparent 70%);
+  }
+  header::after {
+    content: 'SAHAYAK-AI';
+    position: absolute;
+    bottom: -20px; right: 40px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 120px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.03);
+    letter-spacing: 8px;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .badge {
+    display: inline-block;
+    background: var(--saffron);
+    color: var(--navy);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 4px 10px;
+    border-radius: 2px;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+
+  header h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 2px;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+  header h1 span { color: var(--saffron); }
+
+  header .subtitle {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: 20px;
+    color: var(--mid);
+    font-weight: 300;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 32px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+  .meta-item {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--mid);
+    letter-spacing: 1px;
+  }
+  .meta-item strong { color: var(--saffron); }
+
+  /* ─── LAYOUT ─── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
+  section { padding: 56px 0 40px; }
+  section + section { border-top: 1px solid rgba(255,255,255,0.06); }
+
+  h2 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--saffron);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .section-line {
+    width: 48px; height: 3px;
+    background: var(--green);
+    margin-bottom: 28px;
+  }
+
+  h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+    margin-top: 28px;
+    text-transform: uppercase;
+  }
+
+  p { color: #BDD0E6; margin-bottom: 14px; }
+
+  /* ─── ARCHITECTURE DIAGRAM ─── */
+  .arch-diagram {
+    background: rgba(10,38,71,0.8);
+    border: 1px solid rgba(255,140,0,0.3);
+    border-radius: 8px;
+    padding: 36px;
+    margin: 24px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .arch-diagram::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 40px,
+      rgba(255,255,255,0.012) 40px, rgba(255,255,255,0.012) 41px
+    ),
+    repeating-linear-gradient(
+      90deg, transparent, transparent 40px,
+      rgba(255,255,255,0.012) 40px, rgba(255,255,255,0.012) 41px
+    );
+    pointer-events: none;
+  }
+
+  /* Layers */
+  .arch-layer {
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 10px 0;
+    position: relative;
+    z-index: 1;
+  }
+  .layer-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .layer-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .layer-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .layer-chip {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 3px;
+    padding: 3px 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.8);
+    white-space: nowrap;
+  }
+
+  .layer-input    { background: rgba(255,140,0,0.08); border-left: 4px solid var(--saffron); }
+  .layer-coord    { background: rgba(21,101,192,0.18); border-left: 4px solid #5B9BD5; }
+  .layer-mcp      { background: rgba(212,160,23,0.1); border-left: 4px solid var(--gold); }
+  .layer-agents   { background: rgba(19,136,8,0.1); border-left: 4px solid var(--green); }
+  .layer-rule     { background: rgba(192,57,43,0.1); border-left: 4px solid var(--red); }
+  .layer-infra    { background: rgba(26,58,92,0.6); border-left: 4px solid var(--steel); }
+  .layer-hitl     { background: rgba(255,140,0,0.06); border: 2px dashed rgba(255,140,0,0.4); }
+
+  .arrow-down {
+    text-align: center;
+    color: var(--saffron);
+    font-size: 20px;
+    line-height: 1;
+    margin: 2px 0;
+    position: relative;
+    z-index: 1;
+  }
+  .arrow-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--mid);
+    letter-spacing: 1px;
+    text-align: center;
+    margin-top: -2px;
+    margin-bottom: 2px;
+  }
+
+  /* ─── AGENT GRID ─── */
+  .agent-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .agent-card {
+    background: rgba(10,38,71,0.6);
+    border: 1px solid rgba(91,155,213,0.2);
+    border-radius: 6px;
+    padding: 16px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .agent-card:hover {
+    border-color: rgba(255,140,0,0.5);
+    background: rgba(255,140,0,0.05);
+  }
+  .agent-domain {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--saffron);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .agent-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+  .agent-agents {
+    font-size: 12px;
+    color: var(--mid);
+    line-height: 1.5;
+  }
+
+  /* ─── FEASIBILITY TABLE ─── */
+  .feas-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 15px;
+  }
+  .feas-table th {
+    background: rgba(255,140,0,0.15);
+    color: var(--saffron);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 2px solid rgba(255,140,0,0.3);
+  }
+  .feas-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    color: #BDD0E6;
+    vertical-align: top;
+  }
+  .feas-table tr:last-child td { border-bottom: none; }
+  .feas-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .status-pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .pill-green  { background: rgba(19,136,8,0.2); color: #4CAF50; border: 1px solid rgba(76,175,80,0.4); }
+  .pill-amber  { background: rgba(255,140,0,0.15); color: #FFB74D; border: 1px solid rgba(255,183,77,0.4); }
+  .pill-red    { background: rgba(192,57,43,0.2); color: #EF5350; border: 1px solid rgba(239,83,80,0.4); }
+  .pill-blue   { background: rgba(21,101,192,0.2); color: #64B5F6; border: 1px solid rgba(100,181,246,0.4); }
+
+  /* ─── PERMISSIONS GRID ─── */
+  .perm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .perm-card {
+    background: rgba(10,38,71,0.5);
+    border-radius: 6px;
+    padding: 18px;
+    border-top: 3px solid transparent;
+  }
+  .perm-card.critical { border-top-color: var(--red); }
+  .perm-card.important { border-top-color: var(--saffron); }
+  .perm-card.standard { border-top-color: var(--green); }
+  .perm-card.advisory { border-top-color: #5B9BD5; }
+
+  .perm-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 10px;
+  }
+  .perm-body { font-size: 14px; color: #8A9BB0; line-height: 1.6; }
+  .perm-body ul { padding-left: 16px; }
+  .perm-body li { margin-bottom: 4px; }
+  .perm-category {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .cat-critical { color: var(--red); }
+  .cat-important { color: var(--saffron); }
+  .cat-standard { color: var(--green); }
+  .cat-advisory { color: #5B9BD5; }
+
+  /* ─── TECH STACK ─── */
+  .tech-stack {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .tech-block {
+    background: rgba(26,58,92,0.4);
+    border: 1px solid rgba(91,155,213,0.15);
+    border-radius: 6px;
+    padding: 14px;
+  }
+  .tech-category {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .tech-items { font-size: 13px; color: #BDD0E6; line-height: 1.8; }
+
+  /* ─── PHASES ─── */
+  .phases {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 20px 0;
+    position: relative;
+  }
+  .phases::before {
+    content: '';
+    position: absolute;
+    left: 26px; top: 0; bottom: 0; width: 2px;
+    background: linear-gradient(to bottom, var(--saffron), var(--green));
+  }
+  .phase {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    padding: 16px 0;
+  }
+  .phase-num {
+    flex-shrink: 0;
+    width: 54px; height: 54px;
+    background: var(--navy2);
+    border: 2px solid var(--saffron);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--saffron);
+    position: relative;
+    z-index: 1;
+  }
+  .phase-body { flex: 1; padding-top: 6px; }
+  .phase-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+  .phase-time {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--saffron);
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+  .phase-desc { font-size: 14px; color: var(--mid); }
+
+  /* ─── SUMMARY BOXES ─── */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+    margin: 24px 0;
+  }
+  .sum-box {
+    border-radius: 6px;
+    padding: 20px;
+    text-align: center;
+  }
+  .sum-box.saffron { background: rgba(255,140,0,0.1); border: 1px solid rgba(255,140,0,0.3); }
+  .sum-box.green   { background: rgba(19,136,8,0.1);  border: 1px solid rgba(19,136,8,0.3); }
+  .sum-box.blue    { background: rgba(21,101,192,0.12); border: 1px solid rgba(91,155,213,0.3); }
+  .sum-box.red     { background: rgba(192,57,43,0.1); border: 1px solid rgba(192,57,43,0.3); }
+  .sum-number {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .sum-box.saffron .sum-number { color: var(--saffron); }
+  .sum-box.green .sum-number   { color: #4CAF50; }
+  .sum-box.blue .sum-number    { color: #64B5F6; }
+  .sum-box.red .sum-number     { color: #EF5350; }
+  .sum-label { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--mid); letter-spacing: 1px; }
+
+  /* ─── CALLOUT ─── */
+  .callout {
+    border-left: 4px solid var(--saffron);
+    background: rgba(255,140,0,0.06);
+    padding: 16px 20px;
+    border-radius: 0 6px 6px 0;
+    margin: 20px 0;
+    font-style: italic;
+    color: #BDD0E6;
+  }
+  .callout strong { color: var(--saffron); font-style: normal; }
+
+  footer {
+    background: rgba(7,30,61,0.9);
+    border-top: 1px solid rgba(255,140,0,0.2);
+    padding: 24px 60px;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--mid);
+    letter-spacing: 1px;
+  }
+  footer span { color: var(--saffron); }
+
+  @media (max-width: 680px) {
+    header { padding: 32px 20px; }
+    header h1 { font-size: 32px; }
+    .container { padding: 0 16px; }
+    .feas-table { font-size: 13px; }
+    .feas-table th, .feas-table td { padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Architecture & Feasibility Report</div>
+  <h1>SAHAYAK-<span>AI</span></h1>
+  <div class="subtitle">Smart Agentic Human-in-the-Loop Assistant for Yogya Adhikarik Karyalaya</div>
+  <div class="meta-row">
+    <div class="meta-item"><strong>VERSION</strong> — 2.0</div>
+    <div class="meta-item"><strong>BUDGET OUTLAY</strong> — ₹5.5 Crore</div>
+    <div class="meta-item"><strong>DURATION</strong> — 18 Months</div>
+    <div class="meta-item"><strong>INTEGRATION</strong> — C-DAC iHRMS</div>
+    <div class="meta-item"><strong>DEPLOYMENT</strong> — On-Prem / MeghRaj Sovereign Cloud</div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- EXECUTIVE SUMMARY METRICS -->
+  <section>
+    <h2>At a Glance</h2>
+    <div class="section-line"></div>
+    <div class="summary-grid">
+      <div class="sum-box saffron">
+        <div class="sum-number">11</div>
+        <div class="sum-label">Functional Agent Domains</div>
+      </div>
+      <div class="sum-box green">
+        <div class="sum-number">40+</div>
+        <div class="sum-label">Specialized Sub-Agents</div>
+      </div>
+      <div class="sum-box blue">
+        <div class="sum-number">5</div>
+        <div class="sum-label">Implementation Phases</div>
+      </div>
+      <div class="sum-box red">
+        <div class="sum-number">0</div>
+        <div class="sum-label">Autonomous Decisions (HITL Only)</div>
+      </div>
+    </div>
+    <div class="callout">
+      <strong>Core Philosophy:</strong> SAHAYAK-AI is strictly a <strong>decision-support and process-assist</strong> system. AI augments officer capacity — it never replaces statutory authority. Every AI output is recommendatory and requires explicit human approval before action.
+    </div>
+  </section>
+
+  <!-- SOLUTION ARCHITECTURE -->
+  <section>
+    <h2>Solution Architecture</h2>
+    <div class="section-line"></div>
+    <p>The system follows a <strong>task-triggered, coordinator-agent-orchestrated</strong> pattern with an MCP governance layer enforcing tool access and policy boundaries at every step.</p>
+
+    <div class="arch-diagram">
+
+      <div class="arch-layer layer-input">
+        <div class="layer-label" style="color:var(--saffron)">Layer 1 — Input Channels</div>
+        <div class="layer-title" style="color:var(--white)">Trigger Sources</div>
+        <div class="layer-items">
+          <span class="layer-chip">📧 Email / Dak</span>
+          <span class="layer-chip">📄 Uploaded Files</span>
+          <span class="layer-chip">🖊 Officer Forms / Requests</span>
+          <span class="layer-chip">🔗 iHRMS API Events</span>
+          <span class="layer-chip">📅 Scheduled Triggers (MIS)</span>
+        </div>
+      </div>
+
+      <div class="arrow-down">↓</div>
+      <div class="arrow-label">Task ingestion via secure API gateway</div>
+
+      <div class="arch-layer layer-coord">
+        <div class="layer-label" style="color:#5B9BD5">Layer 2 — Orchestration</div>
+        <div class="layer-title" style="color:var(--white)">Coordinator Agent</div>
+        <div class="layer-items">
+          <span class="layer-chip">Task decomposition</span>
+          <span class="layer-chip">Intent classification</span>
+          <span class="layer-chip">Agent routing</span>
+          <span class="layer-chip">Context packaging</span>
+          <span class="layer-chip">Response aggregation</span>
+        </div>
+      </div>
+
+      <div class="arrow-down">↓</div>
+      <div class="arrow-label">Structured task packets dispatched to functional agents</div>
+
+      <div class="arch-layer layer-mcp">
+        <div class="layer-label" style="color:var(--gold)">Layer 3 — Governance (MCP Server)</div>
+        <div class="layer-title" style="color:var(--white)">Model Context Protocol — Policy Enforcement Layer</div>
+        <div class="layer-items">
+          <span class="layer-chip">🛡 Tool access permissions</span>
+          <span class="layer-chip">🔒 Context boundary enforcement</span>
+          <span class="layer-chip">📋 Policy-aware routing</span>
+          <span class="layer-chip">🗂 Audit event logging</span>
+          <span class="layer-chip">⚠️ Action explainability</span>
+          <span class="layer-chip">🚫 Unauthorized access prevention</span>
+        </div>
+      </div>
+
+      <div class="arrow-down">↓</div>
+      <div class="arrow-label">Only approved tool calls pass through MCP</div>
+
+      <div class="arch-layer layer-agents">
+        <div class="layer-label" style="color:var(--green)">Layer 4 — Functional Agent Pool</div>
+        <div class="layer-title" style="color:var(--white)">Domain-Specific AI Agents (40+)</div>
+        <div class="layer-items">
+          <span class="layer-chip">📁 File & Document</span>
+          <span class="layer-chip">📬 Email & Dak</span>
+          <span class="layer-chip">📝 MOM & Meetings</span>
+          <span class="layer-chip">⚖️ RTI & Grievance</span>
+          <span class="layer-chip">📊 MIS & Monitoring</span>
+          <span class="layer-chip">📚 KMS</span>
+          <span class="layer-chip">🌐 WAW Portal</span>
+          <span class="layer-chip">💬 CAMS</span>
+          <span class="layer-chip">🗓 LMS</span>
+          <span class="layer-chip">✈️ TMS</span>
+          <span class="layer-chip">👤 EMD</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:flex-start;margin:10px 0;position:relative;z-index:1;">
+        <div style="flex:1">
+          <div class="arrow-down">↓</div>
+          <div class="arrow-label">Query document / data stores</div>
+        </div>
+        <div style="flex:1">
+          <div class="arrow-down">↓</div>
+          <div class="arrow-label">Enforce SOPs / rules</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;position:relative;z-index:1;">
+        <div class="arch-layer layer-infra" style="flex:1">
+          <div class="layer-label" style="color:var(--mid)">Layer 5a — Data Sources (C-DAC iHRMS)</div>
+          <div class="layer-title" style="color:var(--white)" style="font-size:14px">iHRMS Integrated Data Layer</div>
+          <div class="layer-items">
+            <span class="layer-chip">iHRMS Employee Master</span>
+            <span class="layer-chip">iHRMS Leave Module</span>
+            <span class="layer-chip">iHRMS Payroll</span>
+            <span class="layer-chip">iHRMS Tour Module</span>
+            <span class="layer-chip">iHRMS Service Book</span>
+            <span class="layer-chip">iHRMS Training Module</span>
+            <span class="layer-chip">iHRMS Transfers</span>
+            <span class="layer-chip">Document Repo</span>
+            <span class="layer-chip">Email Server</span>
+            <span class="layer-chip">Vector Store (RAG)</span>
+          </div>
+        </div>
+        <div class="arch-layer layer-rule" style="flex:1">
+          <div class="layer-label" style="color:var(--red)">Layer 5b — Rule Engine</div>
+          <div class="layer-title" style="color:var(--white)" style="font-size:14px">SOP & Policy Enforcement</div>
+          <div class="layer-items">
+            <span class="layer-chip">SOP definitions</span>
+            <span class="layer-chip">Office manuals</span>
+            <span class="layer-chip">Regulatory rules</span>
+            <span class="layer-chip">Timelines & deadlines</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow-down" style="margin-top:10px">↓</div>
+      <div class="arrow-label">AI recommendations returned for human review</div>
+
+      <div class="arch-layer layer-hitl">
+        <div class="layer-label" style="color:var(--saffron)">Layer 6 — Human-in-the-Loop (MANDATORY)</div>
+        <div class="layer-title" style="color:var(--white)">Officer Dashboard — Review & Approval</div>
+        <div class="layer-items">
+          <span class="layer-chip">🧑‍💼 AI recommendation display</span>
+          <span class="layer-chip">✅ Officer review & modification</span>
+          <span class="layer-chip">🔏 Mandatory approval before action</span>
+          <span class="layer-chip">📜 Logged with officer identity & timestamp</span>
+        </div>
+      </div>
+
+    </div>
+
+    <p style="font-size:14px;color:var(--mid);margin-top:8px;">* All AI outputs pass through the Rule Engine before presentation. No AI agent can write to official records, approve files, or issue orders. C-DAC iHRMS is accessed via REST APIs in read-only mode during the pilot phase.</p>
+  </section>
+
+  <!-- AGENT DOMAINS -->
+  <section>
+    <h2>Agent Domain Map</h2>
+    <div class="section-line"></div>
+    <p>SAHAYAK-AI deploys specialized agent clusters across 11 functional domains, each composed of 3–5 purpose-built sub-agents.</p>
+    <div class="agent-grid">
+
+      <div class="agent-card">
+        <div class="agent-domain">A — File & Document</div>
+        <div class="agent-name">Document Lifecycle</div>
+        <div class="agent-agents">Document Reader & Classifier · Routing & Priority · Drafting Assist · Comparison & Change-Tracking · Anomaly & Delay Detection</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-domain">B — Email & Dak</div>
+        <div class="agent-name">Communication Processing</div>
+        <div class="agent-agents">Classification Agent · Priority & Timeline · Draft Reply Assist · Escalation & Reminder</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-domain">C — Meetings</div>
+        <div class="agent-name">MOM & Action Tracking</div>
+        <div class="agent-agents">Content Ingestion · MOM Structuring & Summarization · Action-Item Extraction & Ownership · Follow-Up & Reminder</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-domain">D — RTI & Grievance</div>
+        <div class="agent-name">Pre-Processing (Non-Decisional)</div>
+        <div class="agent-agents">Classification · Section & Subject Mapping · Draft Reply Assist · Deadline Monitoring & Alert</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-domain">E — MIS</div>
+        <div class="agent-name">Project Monitoring & Reporting</div>
+        <div class="agent-agents">Data Aggregation · MIS & Report Generation · Pendency & Timeline Monitoring · Risk & Deviation Identification</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-domain">F — KMS</div>
+        <div class="agent-name">Knowledge Management</div>
+        <div class="agent-agents">Knowledge Indexing & Tagging · Semantic Search & Retrieval · Policy Compliance Checking · Content Drafting & Consistency</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-domain">G — WAW Portal</div>
+        <div class="agent-name">Work-From-Anywhere Assist</div>
+        <div class="agent-agents">Virtual Assistance & Guidance · Personalization & Context Awareness · Remote Access Anomaly Detection · Virtual Meeting Summarization</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-domain">H — CAMS</div>
+        <div class="agent-name">Collaboration & Messaging</div>
+        <div class="agent-agents">Communication Classification & Priority · Meeting Summary & Action-Item · Multilingual Translation · Information Broadcast Assistance</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-domain">I — iHRMS Leave Module</div>
+        <div class="agent-name">Leave Management Assist</div>
+        <div class="agent-agents">Leave Pattern Analysis (iHRMS data) · Leave Recommendation · Anomaly & Fraud Detection · Policy & CSR Compliance · Balance & Entitlement Monitoring</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-domain">J — iHRMS Tour Module</div>
+        <div class="agent-name">Tour Management Assist</div>
+        <div class="agent-agents">Travel Optimization & Cost Analysis · TA/DA Policy Enforcement · Travel Risk & Safety Monitoring · Expense Categorization · iHRMS Tour data sync</div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-domain">K + L — iHRMS EMD & Search</div>
+        <div class="agent-name">Employee Data & Unified Search</div>
+        <div class="agent-agents">Data Validation & QA (iHRMS Service Book) · Onboarding & Offboarding Assist · Talent Analytics · Payroll Anomaly Detection · HR Support Virtual Assistant · Unified Search & Retrieval · Dashboard & Visualization</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- TECHNOLOGY STACK -->
+  <section>
+    <h2>Recommended Technology Stack</h2>
+    <div class="section-line"></div>
+    <p>The stack prioritizes open-source, sovereign-deployable components to avoid vendor lock-in and align with MeitY advisories.</p>
+    <div class="tech-stack">
+      <div class="tech-block">
+        <div class="tech-category">C-DAC iHRMS Integration</div>
+        <div class="tech-items">REST API (iHRMS data sharing)<br>Employee Master / Service Book<br>Leave, Tour, Payroll modules<br>Training & Transfer modules<br>Read-only pilot access<br>C-DAC SSO / pramANi auth</div>
+      </div>
+      <div class="tech-block">
+        <div class="tech-category">LLM / AI Models</div>
+        <div class="tech-items">Llama 3 / Mistral<br>BharatGPT / IndicLLM<br>Ollama (self-hosted)<br>Open-source embeddings</div>
+      </div>
+      <div class="tech-block">
+        <div class="tech-category">Agent Orchestration</div>
+        <div class="tech-items">LangChain / LangGraph<br>AutoGen<br>CrewAI<br>Custom Coordinator</div>
+      </div>
+      <div class="tech-block">
+        <div class="tech-category">MCP Governance</div>
+        <div class="tech-items">Anthropic MCP Protocol<br>Custom MCP Server<br>Policy YAML definitions<br>Tool access registries</div>
+      </div>
+      <div class="tech-block">
+        <div class="tech-category">Vector Store (RAG)</div>
+        <div class="tech-items">ChromaDB / Qdrant<br>Weaviate<br>pgvector (PostgreSQL)<br>Document chunking pipeline</div>
+      </div>
+      <div class="tech-block">
+        <div class="tech-category">Backend</div>
+        <div class="tech-items">Python (FastAPI)<br>Celery (task queues)<br>Redis (caching)<br>PostgreSQL / MongoDB</div>
+      </div>
+      <div class="tech-block">
+        <div class="tech-category">Frontend Dashboard</div>
+        <div class="tech-items">React.js<br>Role-based UI (RBAC)<br>Audit trail viewer<br>Recommendation review UI</div>
+      </div>
+      <div class="tech-block">
+        <div class="tech-category">Security Layer</div>
+        <div class="tech-items">LDAP / SSO integration<br>AES-256 encryption<br>TLS in transit<br>Firewall + VPN</div>
+      </div>
+      <div class="tech-block">
+        <div class="tech-category">Deployment</div>
+        <div class="tech-items">Docker / Kubernetes<br>NIC MeghRaj Cloud<br>On-premise servers<br>Air-gapped capability</div>
+      </div>
+      <div class="tech-block">
+        <div class="tech-category">Logging & Audit</div>
+        <div class="tech-items">ELK Stack / OpenSearch<br>Immutable audit logs<br>Prometheus + Grafana<br>Alert management</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEASIBILITY -->
+  <section>
+    <h2>Feasibility Assessment</h2>
+    <div class="section-line"></div>
+    <p>Each dimension is assessed independently. Overall verdict: <strong style="color:#4CAF50">HIGH FEASIBILITY</strong> — no fundamental blockers exist.</p>
+    <table class="feas-table">
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>Assessment</th>
+          <th>Verdict</th>
+          <th>Key Considerations</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color:var(--white)">Technical Feasibility</strong></td>
+          <td>All core capabilities — RAG, agentic orchestration, MCP governance, open-source LLMs — are mature, production-proven technologies. Sovereign deployment on NIC/MeghRaj is well-established.</td>
+          <td><span class="status-pill pill-green">HIGH</span></td>
+          <td>Llama 3 / Mistral have strong multilingual and document-understanding capabilities. MCP is rapidly maturing for enterprise governance use.</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--white)">Legal & Statutory Feasibility</strong></td>
+          <td>System is strictly assistive and non-decisional. Statutory authority, file approvals, sanctions, and communications remain exclusively with designated officers. No legal amendments required.</td>
+          <td><span class="status-pill pill-green">HIGH</span></td>
+          <td>The HITL design ensures the system does not conflict with Government Servant Conduct Rules or service regulations. RTI module explicitly non-decisional.</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--white)">Policy & Regulatory Feasibility</strong></td>
+          <td>Aligned with MeitY AI advisories, Digital India, India AI Mission, and NIC cloud norms. Human-in-the-loop approach directly maps to responsible AI guidance from NITI Aayog and MeitY.</td>
+          <td><span class="status-pill pill-green">HIGH</span></td>
+          <td>DPDP Act 2023 compliance needed for any personal data (EMD, LMS modules). AI governance framework required per MeitY guidelines.</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--white)">Data Security Feasibility</strong></td>
+          <td>On-prem / sovereign cloud deployment eliminates data exfiltration risk. RBAC, encryption at rest & in transit, network isolation, and immutable audit logs provide a strong security posture.</td>
+          <td><span class="status-pill pill-green">HIGH</span></td>
+          <td>Data classification (Public / Restricted / Confidential) must be defined upfront. Air-gapped deployment for secret/sensitive content required.</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--white)">C-DAC iHRMS Integration Feasibility</strong></td>
+          <td>C-DAC's iHRMS already exposes REST APIs for data sharing (evidenced by CCTNS integration). Modules covering Employee Master, Leave, Tour, Payroll, Service Book, and Training are all accessible. C-DAC's pramANi SSO can be leveraged for authentication.</td>
+          <td><span class="status-pill pill-amber">MEDIUM</span></td>
+          <td>API documentation and access must be formally requested from C-DAC. Read-only access in pilot phase is essential. Write-back (e.g. auto-drafting leave orders) requires separate approvals in later phases.</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--white)">Operational Feasibility</strong></td>
+          <td>Officers are familiar with digital workflows via e-Office. Agentic AI as an assistive layer (not replacement) reduces adoption friction. Structured training and phased rollout are planned.</td>
+          <td><span class="status-pill pill-amber">MEDIUM</span></td>
+          <td>Change management is critical. Senior officer buy-in and early-adopter officer champions are key success factors. Language support (Hindi / regional) must be tested early.</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--white)">Financial Feasibility</strong></td>
+          <td>₹5.5 Crore over 18 months is reasonable for a pilot covering 11 domains and full-stack development. Open-source stack significantly reduces licensing costs vs commercial alternatives.</td>
+          <td><span class="status-pill pill-green">HIGH</span></td>
+          <td>Post-pilot scale-up budget must be planned separately. Infrastructure (GPU servers for LLM hosting) is a significant CapEx item.</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--white)">AI Model Feasibility</strong></td>
+          <td>Open-source LLMs (Llama 3, Mistral) perform well on document understanding, summarization, and drafting tasks. Multilingual Indian language support via IndicLLM or fine-tuned models.</td>
+          <td><span class="status-pill pill-amber">MEDIUM</span></td>
+          <td>Hindi / regional language accuracy must be benchmarked. Domain-specific fine-tuning on government documents is recommended to reduce hallucination risk.</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--white)">Audit & Compliance Feasibility</strong></td>
+          <td>Immutable time-stamped logging, explainable outputs citing source documents and SOP references, and HITL records provide strong audit readiness for RTI, internal audit, and CAG review.</td>
+          <td><span class="status-pill pill-green">HIGH</span></td>
+          <td>Log retention policy must align with government record management rules. CAG audit readiness validation should be part of Phase 3.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- PERMISSIONS REQUIRED -->
+  <section>
+    <h2>Required Permissions & Approvals</h2>
+    <div class="section-line"></div>
+    <p>Successful implementation requires approvals across government IT, legal, data, and administrative frameworks. These are categorized by criticality.</p>
+    <div class="perm-grid">
+
+      <div class="perm-card critical">
+        <div class="perm-category cat-critical">🔴 Critical — Must Secure Before Development</div>
+        <div class="perm-title">MeitY / Department IT Approval</div>
+        <div class="perm-body"><ul>
+          <li>Formal approval for AI deployment in government workflows</li>
+          <li>Alignment sign-off against MeitY AI advisory</li>
+          <li>CIO / IT Secretary approval from the department</li>
+        </ul></div>
+      </div>
+
+      <div class="perm-card critical">
+        <div class="perm-category cat-critical">🔴 Critical — Must Secure Before Development</div>
+        <div class="perm-title">NIC / MeghRaj Cloud Onboarding</div>
+        <div class="perm-body"><ul>
+          <li>Formal request & security vetting for MeghRaj hosting</li>
+          <li>NIC security audit clearance</li>
+          <li>GPU/compute provisioning approval (for LLM hosting)</li>
+        </ul></div>
+      </div>
+
+      <div class="perm-card critical">
+        <div class="perm-category cat-critical">🔴 Critical — Must Secure Before Development</div>
+        <div class="perm-title">C-DAC iHRMS API Access</div>
+        <div class="perm-body"><ul>
+          <li>Formal API access request to C-DAC for iHRMS REST APIs</li>
+          <li>Read-only credentials for Employee Master, Leave, Tour, Payroll, Service Book modules</li>
+          <li>Data sharing agreement with C-DAC (similar to CCTNS precedent)</li>
+          <li>C-DAC pramANi SSO integration for officer authentication</li>
+        </ul></div>
+      </div>
+
+      <div class="perm-card important">
+        <div class="perm-category cat-important">🟠 Important — Secure Before Integration Phase</div>
+        <div class="perm-title">Data Access & Classification</div>
+        <div class="perm-body"><ul>
+          <li>Formal data classification register approval</li>
+          <li>Privacy Impact Assessment (PIA) under DPDP Act 2023</li>
+          <li>Data minimization framework sign-off</li>
+        </ul></div>
+      </div>
+
+      <div class="perm-card important">
+        <div class="perm-category cat-important">🟠 Important — Secure Before Integration Phase</div>
+        <div class="perm-title">LDAP / SSO & C-DAC pramANi Integration</div>
+        <div class="perm-body"><ul>
+          <li>IT department permission for LDAP / SSO directory integration</li>
+          <li>C-DAC pramANi SSO federation for iHRMS officer identity</li>
+          <li>Role mapping approval (Officer / Section Head / Admin)</li>
+          <li>Service account credentials with least-privilege scope</li>
+        </ul></div>
+      </div>
+
+      <div class="perm-card important">
+        <div class="perm-category cat-important">🟠 Important — Secure Before Integration Phase</div>
+        <div class="perm-title">Email & Dak Server Access</div>
+        <div class="perm-body"><ul>
+          <li>Read-only mailbox access for email classification agents</li>
+          <li>IT/security team sign-off for mail server integration</li>
+          <li>No write access in pilot phase</li>
+        </ul></div>
+      </div>
+
+      <div class="perm-card standard">
+        <div class="perm-category cat-standard">🟢 Standard — Secure During Development Phase</div>
+        <div class="perm-title">AI Governance Framework Approval</div>
+        <div class="perm-body"><ul>
+          <li>Internal AI policy framework ratified by department</li>
+          <li>Model evaluation and bias-check protocols approved</li>
+          <li>Escalation and override procedures documented</li>
+        </ul></div>
+      </div>
+
+      <div class="perm-card standard">
+        <div class="perm-category cat-standard">🟢 Standard — Secure During Development Phase</div>
+        <div class="perm-title">SOP Access & Encoding Rights</div>
+        <div class="perm-body"><ul>
+          <li>Official permission to ingest SOPs, office manuals into the rule engine</li>
+          <li>Change management process for SOP updates</li>
+          <li>Document custodian sign-off for each SOP encoded</li>
+        </ul></div>
+      </div>
+
+      <div class="perm-card standard">
+        <div class="perm-category cat-standard">🟢 Standard — Secure During Development Phase</div>
+        <div class="perm-title">Audit Log Access for CAG/RTI</div>
+        <div class="perm-body"><ul>
+          <li>Audit log retention policy approved per record management rules</li>
+          <li>CAG audit readiness validation planned in Phase 3</li>
+          <li>RTI officer access protocol defined</li>
+        </ul></div>
+      </div>
+
+      <div class="perm-card advisory">
+        <div class="perm-category cat-advisory">🔵 Advisory — Before Scale-Up</div>
+        <div class="perm-title">Inter-Departmental Replication</div>
+        <div class="perm-body"><ul>
+          <li>Cabinet Secretariat / DARPG advisory clearance for multi-department rollout</li>
+          <li>Reference architecture shared with MeitY for broader adoption</li>
+          <li>Nodal ministry identified for scale-up governance</li>
+        </ul></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- IMPLEMENTATION PHASES -->
+  <section>
+    <h2>Implementation Phases</h2>
+    <div class="section-line"></div>
+    <div class="phases">
+      <div class="phase">
+        <div class="phase-num">01</div>
+        <div class="phase-body">
+          <div class="phase-title">Requirement Analysis & Inception</div>
+          <div class="phase-time">Months 0 – 3</div>
+          <div class="phase-desc">Workflow prioritization, SOP-to-workflow mapping, data classification assessment, architecture finalization, HITL checkpoint design, and security/compliance alignment with Government IT and AI guidelines.</div>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-num">02</div>
+        <div class="phase-body">
+          <div class="phase-title">Core Platform & Agent Development</div>
+          <div class="phase-time">Months 4 – 9</div>
+          <div class="phase-desc">SAHAYAK-AI core platform build, rule engine implementation, development of 5 core agent modules (File, Email/Dak, MOM, RTI, MIS), MCP governance layer, and internal testing on controlled datasets. iHRMS REST API adapters built and tested against sandbox data.</div>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-num">03</div>
+        <div class="phase-body">
+          <div class="phase-title">Integration, Security Hardening & Controlled Pilot</div>
+          <div class="phase-time">Months 10 – 12</div>
+          <div class="phase-desc">C-DAC iHRMS integration in pilot environment (Employee Master, Leave, Tour, Payroll, Service Book modules via REST APIs), audit logging implementation, security hardening, limited pilot deployment in selected departments, officer onboarding, role-based training, and feedback collection.</div>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-num">04</div>
+        <div class="phase-body">
+          <div class="phase-title">Pilot Operations, Optimization & Extended Modules</div>
+          <div class="phase-time">Months 13 – 15</div>
+          <div class="phase-desc">Live pilot operation, agent behavior fine-tuning, performance optimization, and enablement of extended iHRMS-backed agentic workflows (Training Module, Transfers, Promotions, KMS, CAMS, WAW). Human-in-the-loop effectiveness validation and iHRMS write-back feasibility assessment.</div>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-num">05</div>
+        <div class="phase-body">
+          <div class="phase-title">Evaluation, Documentation & Scale-Up Planning</div>
+          <div class="phase-time">Months 16 – 18</div>
+          <div class="phase-desc">Comprehensive impact assessment, efficiency gain measurement, compliance validation, final documentation, and replication blueprint for wider departmental adoption across ministries.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RISK SUMMARY -->
+  <section>
+    <h2>Top Risks & Mitigations</h2>
+    <div class="section-line"></div>
+    <table class="feas-table">
+      <thead>
+        <tr>
+          <th>Risk</th>
+          <th>Likelihood</th>
+          <th>Impact</th>
+          <th>Mitigation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>AI hallucination in drafting / recommendations</td>
+          <td><span class="status-pill pill-amber">MEDIUM</span></td>
+          <td><span class="status-pill pill-red">HIGH</span></td>
+          <td>Rule-first processing; mandatory source citation; periodic prompt audits; officer verification before any action</td>
+        </tr>
+        <tr>
+          <td>C-DAC iHRMS API access delay or limitations</td>
+          <td><span class="status-pill pill-amber">MEDIUM</span></td>
+          <td><span class="status-pill pill-amber">MEDIUM</span></td>
+          <td>Initiate formal C-DAC API request in Phase 1; reference CCTNS precedent; build read-only adapters first; design agents to degrade gracefully if specific modules are unavailable</td>
+        </tr>
+        <tr>
+          <td>Officer resistance / low adoption</td>
+          <td><span class="status-pill pill-amber">MEDIUM</span></td>
+          <td><span class="status-pill pill-red">HIGH</span></td>
+          <td>Assistive (not autonomous) design; phased onboarding; structured training; early-adopter champion program</td>
+        </tr>
+        <tr>
+          <td>Data leakage / unauthorized access</td>
+          <td><span class="status-pill pill-green">LOW</span></td>
+          <td><span class="status-pill pill-red">HIGH</span></td>
+          <td>On-prem / sovereign cloud only; RBAC; encryption; MCP tool access controls; network isolation</td>
+        </tr>
+        <tr>
+          <td>Multilingual AI accuracy (Hindi/regional)</td>
+          <td><span class="status-pill pill-amber">MEDIUM</span></td>
+          <td><span class="status-pill pill-amber">MEDIUM</span></td>
+          <td>Benchmark IndicLLM / fine-tuned models in Phase 1; human review always mandatory; phased language rollout</td>
+        </tr>
+        <tr>
+          <td>Regulatory / policy non-compliance</td>
+          <td><span class="status-pill pill-green">LOW</span></td>
+          <td><span class="status-pill pill-red">HIGH</span></td>
+          <td>HITL design; MeitY advisory alignment; DPDP Act PIA; legal review in Phase 1</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- VERDICT -->
+  <section>
+    <h2>Overall Verdict</h2>
+    <div class="section-line"></div>
+    <div class="callout" style="border-left-color:var(--green);background:rgba(19,136,8,0.08);">
+      <strong style="color:#4CAF50">FEASIBLE — Recommended for Proceeding.</strong> SAHAYAK-AI is technically sound, policy-aligned, and strategically well-positioned. The Human-in-the-Loop design eliminates the primary legal and statutory risks. The use of open-source models and sovereign cloud deployment removes vendor lock-in and data sovereignty concerns. The primary execution risks are around iHRMS API integration depth, multilingual AI accuracy, and change management — all of which are manageable through the phased implementation approach proposed. <br><br>
+      The critical path to success: <strong style="color:var(--saffron)">secure MeitY alignment, NIC cloud onboarding, and C-DAC iHRMS API access early in Phase 1</strong> — these are the long-lead-time permissions that must not be deferred. C-DAC's established data-sharing precedent (CCTNS integration) provides a strong reference for iHRMS API access negotiation.
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <span>SAHAYAK-AI</span> &nbsp;·&nbsp; Architecture & Feasibility Report &nbsp;·&nbsp; Integrated with C-DAC iHRMS &nbsp;·&nbsp; ₹5.5 Cr · 18 Months
+</footer>
+
+</body>
+</html>

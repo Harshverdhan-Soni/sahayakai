@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAHAYAK-AI — Full Integration Build Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:    #06172E;
+  --navy2:   #0A2240;
+  --steel:   #0F3460;
+  --saffron: #F7941D;
+  --green:   #22C55E;
+  --blue:    #3B82F6;
+  --red:     #EF4444;
+  --gold:    #D4A017;
+  --smoke:   #E2EAF4;
+  --mid:     #7A90A8;
+  --dim:     #2A3F56;
+  --white:   #FFFFFF;
+  --teal:    #14B8A6;
+  --purple:  #A855F7;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--navy);color:var(--smoke);font-family:'Sora',sans-serif;font-size:15px;line-height:1.7}
+
+/* ── LAYOUT ── */
+.page{max-width:960px;margin:0 auto;padding:0 32px 80px}
+
+/* ── HEADER ── */
+header{background:linear-gradient(135deg,#06172E,#0A2240,#0F3460);border-bottom:3px solid var(--saffron);padding:48px 32px 36px;margin-bottom:0}
+.hero-badge{display:inline-block;background:var(--saffron);color:var(--navy);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:2px;padding:3px 10px;border-radius:2px;margin-bottom:16px;text-transform:uppercase}
+header h1{font-size:36px;font-weight:700;color:var(--white);letter-spacing:-0.5px;line-height:1.15;margin-bottom:10px}
+header h1 span{color:var(--saffron)}
+header .sub{font-size:15px;color:var(--mid);max-width:600px}
+.meta-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:4px;padding:4px 12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mid)}
+.chip span{color:var(--saffron)}
+
+/* ── TOC ── */
+.toc{background:var(--navy2);border:1px solid var(--dim);border-radius:8px;padding:24px 28px;margin:32px 0}
+.toc-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--saffron);margin-bottom:14px;text-transform:uppercase}
+.toc ol{list-style:none;counter-reset:toc-c;display:grid;grid-template-columns:1fr 1fr;gap:4px 24px}
+.toc li{counter-increment:toc-c;display:flex;align-items:center;gap:8px}
+.toc li::before{content:counter(toc-c,decimal-leading-zero);font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--saffron);flex-shrink:0}
+.toc a{color:var(--mid);text-decoration:none;font-size:13px;transition:color .15s}
+.toc a:hover{color:var(--saffron)}
+
+/* ── PHASE HEADER ── */
+.phase{margin:44px 0 0;padding-top:44px;border-top:1px solid rgba(255,255,255,0.06)}
+.phase-badge{display:inline-flex;align-items:center;gap:8px;background:var(--saffron);color:var(--navy);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:1px;padding:3px 12px;border-radius:2px;margin-bottom:12px;text-transform:uppercase}
+.phase h2{font-size:26px;font-weight:700;color:var(--white);margin-bottom:6px;letter-spacing:-0.3px}
+.phase .phase-sub{color:var(--mid);font-size:14px;margin-bottom:24px}
+.phase-goals{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px}
+.goal-chip{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:var(--green);border-radius:4px;padding:3px 10px;font-size:11px;font-family:'JetBrains Mono',monospace}
+
+/* ── STEP ── */
+.step{margin:20px 0;background:var(--navy2);border:1px solid var(--dim);border-radius:8px;overflow:hidden}
+.step-header{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--dim);cursor:pointer;user-select:none}
+.step-num{width:28px;height:28px;border-radius:50%;background:rgba(247,148,29,.15);border:1px solid rgba(247,148,29,.4);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--saffron);flex-shrink:0}
+.step-title{font-weight:600;color:var(--white);font-size:14px;flex:1}
+.step-tag{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;padding:2px 8px;border-radius:2px;text-transform:uppercase}
+.tag-cli{background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.3)}
+.tag-code{background:rgba(168,85,247,.15);color:var(--purple);border:1px solid rgba(168,85,247,.3)}
+.tag-config{background:rgba(212,160,23,.15);color:var(--gold);border:1px solid rgba(212,160,23,.3)}
+.tag-db{background:rgba(20,184,166,.15);color:var(--teal);border:1px solid rgba(20,184,166,.3)}
+.tag-arch{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.tag-test{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.step-body{padding:20px}
+
+/* ── CODE BLOCKS ── */
+pre{background:#020D1A;border:1px solid var(--dim);border-radius:6px;padding:16px 18px;overflow-x:auto;margin:12px 0;position:relative}
+pre .file-label{position:absolute;top:0;right:0;background:var(--dim);color:var(--mid);font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 10px;border-radius:0 0 0 4px;letter-spacing:1px}
+code{font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.8;color:#A8C7E8}
+.kw{color:#C792EA}      /* keyword */
+.fn{color:#82AAFF}      /* function */
+.st{color:#C3E88D}      /* string */
+.cm{color:#546E7A}      /* comment */
+.nm{color:#F78C6C}      /* number/name */
+.op{color:#89DDFF}      /* operator */
+.hl{background:rgba(247,148,29,.08);display:block;margin:0 -18px;padding:0 18px}
+
+/* ── CALLOUT BOXES ── */
+.callout{border-radius:6px;padding:14px 18px;margin:14px 0;display:flex;gap:12px;align-items:flex-start}
+.callout-icon{font-size:18px;flex-shrink:0;line-height:1.4}
+.callout-body{flex:1;font-size:13px;line-height:1.6}
+.callout-body strong{display:block;margin-bottom:3px;font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:0.5px}
+.info{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25)}
+.info .callout-body strong{color:var(--blue)}
+.warn{background:rgba(247,148,29,.08);border:1px solid rgba(247,148,29,.25)}
+.warn .callout-body strong{color:var(--saffron)}
+.success{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25)}
+.success .callout-body strong{color:var(--green)}
+.danger{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25)}
+.danger .callout-body strong{color:var(--red)}
+
+/* ── ARCH DIAGRAM ── */
+.arch{background:#020D1A;border:1px solid var(--dim);border-radius:8px;padding:24px;margin:16px 0;font-family:'JetBrains Mono',monospace;font-size:12px}
+.arch-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:5px;margin:4px 0}
+.arch-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mid);min-width:100px;flex-shrink:0}
+.arch-box{flex:1;padding:8px 14px;border-radius:4px;font-size:11px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.arch-arrow{color:var(--dim);font-size:14px;flex-shrink:0}
+.l1{background:rgba(247,148,29,.1);border:1px solid rgba(247,148,29,.3)}
+.l2{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3)}
+.l3{background:rgba(212,160,23,.1);border:1px solid rgba(212,160,23,.3)}
+.l4{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3)}
+.l5{background:rgba(20,184,166,.1);border:1px solid rgba(20,184,166,.3)}
+.l6{background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.3)}
+
+/* ── TABLE ── */
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px}
+th{background:rgba(247,148,29,.12);color:var(--saffron);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;padding:8px 12px;text-align:left;border-bottom:2px solid rgba(247,148,29,.3)}
+td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.06);color:var(--smoke);vertical-align:top}
+tr:last-child td{border-bottom:none}
+
+/* ── CHECKLIST ── */
+.checklist{list-style:none;margin:12px 0}
+.checklist li{display:flex;gap:10px;padding:5px 0;font-size:13px;color:var(--smoke)}
+.checklist li::before{content:"☐";color:var(--saffron);font-size:14px;flex-shrink:0;font-family:'JetBrains Mono',monospace}
+
+/* ── FILE TREE ── */
+.filetree{background:#020D1A;border:1px solid var(--dim);border-radius:6px;padding:16px 18px;margin:12px 0;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:2;color:#A8C7E8}
+.filetree .dir{color:var(--saffron)}
+.filetree .file{color:#A8C7E8}
+.filetree .comment{color:#546E7A}
+
+/* ── PROGRESS TRACKER ── */
+.tracker{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin:28px 0}
+.track-step{text-align:center;position:relative}
+.track-step::after{content:'';position:absolute;top:16px;left:60%;width:80%;height:2px;background:var(--dim)}
+.track-step:last-child::after{display:none}
+.track-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;position:relative;z-index:1}
+.track-dot.done{background:var(--saffron);color:var(--navy)}
+.track-dot.todo{background:var(--dim);color:var(--mid)}
+.track-label{font-size:10px;color:var(--mid);font-family:'JetBrains Mono',monospace;letter-spacing:0.5px}
+
+/* ── MISC ── */
+p{margin:10px 0;color:var(--smoke)}
+h3{font-size:15px;font-weight:600;color:var(--white);margin:18px 0 8px;letter-spacing:-0.2px}
+h4{font-size:13px;font-weight:600;color:var(--saffron);margin:14px 0 6px;font-family:'JetBrains Mono',monospace;letter-spacing:0.5px;text-transform:uppercase}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--dim),transparent);margin:40px 0}
+footer{border-top:1px solid var(--dim);padding:24px 32px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mid);letter-spacing:1px}
+footer span{color:var(--saffron)}
+@media(max-width:640px){
+  .toc ol{grid-template-columns:1fr}
+  .tracker{grid-template-columns:1fr;gap:10px}
+  .track-step::after{display:none}
+  header h1{font-size:24px}
+  .page{padding:0 16px 60px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="page">
+    <div class="hero-badge">Technical Build Guide</div>
+    <h1>SAHAYAK-AI — <span>Full Integration</span><br>Local LLM + iHRMS MCP Backend</h1>
+    <p class="sub">Step-by-step guide to connect the React frontend to a local Ollama LLM via a Python MCP server, and wire in the C-DAC iHRMS database as a live data source.</p>
+    <div class="meta-chips">
+      <div class="chip">Stack <span>Python 3.11+ · FastAPI · MCP SDK</span></div>
+      <div class="chip">LLM <span>Ollama · Llama 3.2 / Mistral</span></div>
+      <div class="chip">DB <span>PostgreSQL (iHRMS) · SQLAlchemy</span></div>
+      <div class="chip">Frontend <span>React · Existing JSX App</span></div>
+      <div class="chip">Est. Time <span>4–6 hours (dev env)</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- PROGRESS TRACKER -->
+  <div style="margin-top:32px">
+    <div class="tracker">
+      <div class="track-step">
+        <div class="track-dot done">01</div>
+        <div class="track-label">ENVIRONMENT</div>
+      </div>
+      <div class="track-step">
+        <div class="track-dot done">02</div>
+        <div class="track-label">LOCAL LLM</div>
+      </div>
+      <div class="track-step">
+        <div class="track-dot done">03</div>
+        <div class="track-label">MCP SERVER</div>
+      </div>
+      <div class="track-step">
+        <div class="track-dot done">04</div>
+        <div class="track-label">iHRMS DB</div>
+      </div>
+      <div class="track-step">
+        <div class="track-dot done">05</div>
+        <div class="track-label">FRONTEND WIRE</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#phase1">Phase 1 — Prerequisites & Environment Setup</a></li>
+      <li><a href="#phase2">Phase 2 — Local LLM with Ollama</a></li>
+      <li><a href="#phase3">Phase 3 — Python MCP Server (Core)</a></li>
+      <li><a href="#phase4">Phase 4 — iHRMS Database Connector</a></li>
+      <li><a href="#phase5">Phase 5 — Agentic Tool Definitions</a></li>
+      <li><a href="#phase6">Phase 6 — FastAPI Gateway</a></li>
+      <li><a href="#phase7">Phase 7 — React Frontend Wiring</a></li>
+      <li><a href="#phase8">Phase 8 — Notification Agent Scheduler</a></li>
+      <li><a href="#phase9">Phase 9 — Audit Logging</a></li>
+      <li><a href="#phase10">Phase 10 — Running & Testing End-to-End</a></li>
+    </ol>
+  </div>
+
+  <!-- ARCHITECTURE OVERVIEW -->
+  <h3 style="margin-top:32px;font-size:18px">Full System Architecture</h3>
+  <div class="arch">
+    <div class="arch-row">
+      <div class="arch-label" style="color:var(--saffron)">FRONTEND</div>
+      <div class="arch-box l1">
+        <span style="color:var(--saffron)">React App</span>
+        <span style="color:var(--mid);font-size:10px">Chat · Notifications · Dashboards · HITL Approval</span>
+      </div>
+    </div>
+    <div style="text-align:center;color:var(--dim);padding:2px 0">↕ HTTP / WebSocket (localhost:3000 → :8000)</div>
+    <div class="arch-row">
+      <div class="arch-label" style="color:var(--blue)">API GATEWAY</div>
+      <div class="arch-box l2">
+        <span style="color:var(--blue)">FastAPI</span>
+        <span style="color:var(--mid);font-size:10px">POST /chat · GET /notifications · POST /approve · WebSocket /ws</span>
+      </div>
+    </div>
+    <div style="text-align:center;color:var(--dim);padding:2px 0">↕ Python function calls</div>
+    <div class="arch-row">
+      <div class="arch-label" style="color:var(--gold)">MCP SERVER</div>
+      <div class="arch-box l3">
+        <span style="color:var(--gold)">MCP Host (Python)</span>
+        <span style="color:var(--mid);font-size:10px">Tool registry · Policy enforcement · Audit logging · Context management</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:20px;align-items:flex-start;margin:4px 0">
+      <div style="flex:1;text-align:center;color:var(--dim)">↕ Ollama REST</div>
+      <div style="flex:1;text-align:center;color:var(--dim)">↕ SQLAlchemy ORM</div>
+      <div style="flex:1;text-align:center;color:var(--dim)">↕ Python stdlib</div>
+    </div>
+    <div style="display:flex;gap:8px;margin:4px 0">
+      <div class="arch-box l4" style="flex:1">
+        <span style="color:var(--green)">Ollama (Local)</span>
+        <span style="color:var(--mid);font-size:10px">Llama 3.2 / Mistral</span>
+      </div>
+      <div class="arch-box l5" style="flex:1">
+        <span style="color:var(--teal)">iHRMS DB</span>
+        <span style="color:var(--mid);font-size:10px">PostgreSQL · C-DAC schema</span>
+      </div>
+      <div class="arch-box l6" style="flex:1">
+        <span style="color:var(--purple)">Audit Store</span>
+        <span style="color:var(--mid);font-size:10px">SQLite · Immutable log</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <div class="callout-icon">ℹ</div>
+    <div class="callout-body">
+      <strong>SCOPE OF THIS GUIDE</strong>
+      Everything runs locally on your development machine / government server. No data leaves the network. The iHRMS connection is read-only during the pilot. All AI outputs go through the MCP server's HITL gate before being returned to the frontend.
+    </div>
+  </div>
+
+  <!-- ══ PHASE 1 ══ -->
+  <div class="phase" id="phase1">
+    <div class="phase-badge">Phase 01 — Prerequisites</div>
+    <h2>Environment Setup</h2>
+    <p class="phase-sub">Install and verify all dependencies before writing any code.</p>
+    <div class="phase-goals">
+      <div class="goal-chip">✓ Python 3.11+</div>
+      <div class="goal-chip">✓ Node 18+ (for React)</div>
+      <div class="goal-chip">✓ Ollama installed</div>
+      <div class="goal-chip">✓ PostgreSQL client</div>
+      <div class="goal-chip">✓ Git</div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">1</div>
+        <div class="step-title">Create the project folder structure</div>
+        <div class="step-tag tag-cli">CLI</div>
+      </div>
+      <div class="step-body">
+        <p>Keep the React frontend and Python backend in one monorepo folder:</p>
+        <div class="filetree">
+<span class="dir">sahayak-ai/</span>
+├── <span class="dir">frontend/</span>          <span class="comment"># Your existing React app (sahayak_mcp_client.jsx)</span>
+│   ├── src/
+│   │   └── App.js
+│   └── package.json
+├── <span class="dir">backend/</span>           <span class="comment"># New — Python MCP server + FastAPI</span>
+│   ├── <span class="file">main.py</span>         <span class="comment"># FastAPI gateway</span>
+│   ├── <span class="file">mcp_server.py</span>   <span class="comment"># MCP host + tool registry</span>
+│   ├── <span class="file">llm_client.py</span>   <span class="comment"># Ollama wrapper</span>
+│   ├── <span class="file">ihrms_db.py</span>     <span class="comment"># iHRMS database connector</span>
+│   ├── <span class="file">tools/</span>          <span class="comment"># One file per agent tool</span>
+│   │   ├── leave_tools.py
+│   │   ├── tour_tools.py
+│   │   ├── rti_tools.py
+│   │   ├── file_tools.py
+│   │   └── mis_tools.py
+│   ├── <span class="file">scheduler.py</span>    <span class="comment"># Notification scheduler</span>
+│   ├── <span class="file">audit.py</span>        <span class="comment"># Immutable audit log</span>
+│   ├── <span class="file">config.py</span>       <span class="comment"># All settings (no secrets in code)</span>
+│   └── <span class="file">requirements.txt</span>
+└── <span class="file">README.md</span>
+        </div>
+<pre><code><span class="cm"># Run from your projects folder</span>
+mkdir sahayak-ai && cd sahayak-ai
+mkdir -p frontend backend/tools
+cd backend
+python -m venv venv
+<span class="cm"># Windows</span>
+venv\Scripts\activate
+<span class="cm"># macOS / Linux</span>
+source venv/bin/activate</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">2</div>
+        <div class="step-title">Install Python dependencies</div>
+        <div class="step-tag tag-cli">CLI</div>
+      </div>
+      <div class="step-body">
+        <p>Create <code>backend/requirements.txt</code> with the exact packages needed:</p>
+<pre><code><span class="cm"># backend/requirements.txt</span>
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+httpx==0.27.0          <span class="cm"># For Ollama REST calls</span>
+sqlalchemy==2.0.35     <span class="cm"># iHRMS DB ORM</span>
+asyncpg==0.29.0        <span class="cm"># Async PostgreSQL driver</span>
+psycopg2-binary==2.9.9 <span class="cm"># Sync PostgreSQL driver</span>
+pydantic==2.8.0        <span class="cm"># Data validation</span>
+python-dotenv==1.0.1   <span class="cm"># .env config loading</span>
+apscheduler==3.10.4    <span class="cm"># Notification scheduler</span>
+python-jose==3.3.0     <span class="cm"># JWT tokens (RBAC)</span>
+aiofiles==23.2.1       <span class="cm"># Async file I/O</span>
+mcp==1.0.0             <span class="cm"># Anthropic MCP SDK</span></code></pre>
+<pre><code>pip install -r requirements.txt</code></pre>
+        <div class="callout warn">
+          <div class="callout-icon">⚠</div>
+          <div class="callout-body">
+            <strong>MCP SDK NOTE</strong>
+            The <code>mcp</code> package is Anthropic's official Python SDK. If it's not yet on PyPI for your Python version, install from source: <code>pip install git+https://github.com/modelcontextprotocol/python-sdk.git</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">3</div>
+        <div class="step-title">Create the config file (.env)</div>
+        <div class="step-tag tag-config">CONFIG</div>
+      </div>
+      <div class="step-body">
+        <p>Never hardcode credentials. Put all settings in <code>backend/.env</code>:</p>
+<pre><code><span class="cm"># backend/.env — DO NOT COMMIT THIS FILE</span>
+
+<span class="cm"># Ollama</span>
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=llama3.2
+
+<span class="cm"># iHRMS Database (get from your DBA)</span>
+IHRMS_DB_HOST=localhost
+IHRMS_DB_PORT=5432
+IHRMS_DB_NAME=ihrms_prod
+IHRMS_DB_USER=sahayak_readonly
+IHRMS_DB_PASSWORD=your_secure_password
+
+<span class="cm"># Audit log</span>
+AUDIT_DB_PATH=./audit.db
+
+<span class="cm"># API settings</span>
+API_HOST=0.0.0.0
+API_PORT=8000
+CORS_ORIGINS=http://localhost:3000
+
+<span class="cm"># Security</span>
+SECRET_KEY=generate-a-long-random-string-here
+OFFICER_ID=AK10234</code></pre>
+<pre><code><span class="cm"># backend/config.py</span>
+<span class="kw">from</span> dotenv <span class="kw">import</span> load_dotenv
+<span class="kw">import</span> os
+
+load_dotenv()
+
+<span class="kw">class</span> <span class="fn">Settings</span>:
+    OLLAMA_URL   = os.getenv(<span class="st">"OLLAMA_BASE_URL"</span>, <span class="st">"http://localhost:11434"</span>)
+    OLLAMA_MODEL = os.getenv(<span class="st">"OLLAMA_MODEL"</span>, <span class="st">"llama3.2"</span>)
+    DB_URL       = (
+        <span class="st">f"postgresql+asyncpg://"</span>
+        <span class="st">f"{os.getenv('IHRMS_DB_USER')}:{os.getenv('IHRMS_DB_PASSWORD')}"</span>
+        <span class="st">f"@{os.getenv('IHRMS_DB_HOST')}:{os.getenv('IHRMS_DB_PORT')}"</span>
+        <span class="st">f"/{os.getenv('IHRMS_DB_NAME')}"</span>
+    )
+    AUDIT_DB     = os.getenv(<span class="st">"AUDIT_DB_PATH"</span>, <span class="st">"./audit.db"</span>)
+    SECRET_KEY   = os.getenv(<span class="st">"SECRET_KEY"</span>, <span class="st">"change-me"</span>)
+    CORS_ORIGINS = os.getenv(<span class="st">"CORS_ORIGINS"</span>, <span class="st">"http://localhost:3000"</span>).split(<span class="st">","</span>)
+
+settings = <span class="fn">Settings</span>()</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHASE 2 ══ -->
+  <div class="phase" id="phase2">
+    <div class="phase-badge">Phase 02 — Local LLM</div>
+    <h2>Ollama Setup & LLM Client</h2>
+    <p class="phase-sub">Install Ollama, pull a model, and write the Python wrapper that all agents will use.</p>
+    <div class="phase-goals">
+      <div class="goal-chip">✓ Ollama running locally</div>
+      <div class="goal-chip">✓ Llama 3.2 model pulled</div>
+      <div class="goal-chip">✓ Python LLM client ready</div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">4</div>
+        <div class="step-title">Install Ollama and pull a model</div>
+        <div class="step-tag tag-cli">CLI</div>
+      </div>
+      <div class="step-body">
+<pre><code><span class="cm"># Download Ollama from https://ollama.ai</span>
+<span class="cm"># Then in terminal:</span>
+
+ollama pull llama3.2          <span class="cm"># ~2GB — good for documents, fast on CPU</span>
+ollama pull mistral           <span class="cm"># Alternative: stronger reasoning</span>
+ollama pull llama3.2:3b       <span class="cm"># Lightweight if GPU is limited</span>
+
+<span class="cm"># Test it works</span>
+ollama run llama3.2 "Summarise a government RTI file in 2 lines"
+
+<span class="cm"># Keep Ollama running as a service (separate terminal)</span>
+ollama serve</code></pre>
+
+        <div class="callout info">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body">
+            <strong>HARDWARE GUIDE</strong>
+            Llama 3.2 (3B): runs on any laptop with 8GB RAM via CPU. Llama 3.2 (8B): needs 16GB RAM or a 6GB VRAM GPU. Mistral 7B: similar to 8B. For production, recommend a dedicated server with NVIDIA T4 / A10G GPU.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">5</div>
+        <div class="step-title">Write the Ollama LLM client wrapper</div>
+        <div class="step-tag tag-code">PYTHON</div>
+      </div>
+      <div class="step-body">
+        <p>Create <code>backend/llm_client.py</code> — this is the single point of contact with Ollama for all agents:</p>
+<pre><code><span class="cm"># backend/llm_client.py</span>
+<span class="kw">import</span> httpx, json
+<span class="kw">from</span> typing <span class="kw">import</span> AsyncIterator
+<span class="kw">from</span> config <span class="kw">import</span> settings
+
+<span class="cm"># System prompt — enforces government-safe, HITL behaviour</span>
+SYSTEM_PROMPT = <span class="st">"""You are SAHAYAK-AI, a government decision-support assistant.
+
+RULES (never violate):
+1. You assist; you NEVER take autonomous decisions.
+2. Every recommendation must cite the source document or SOP rule.
+3. For RTI matters, always reference the correct section of RTI Act 2005.
+4. Never fabricate data — only use information from provided context.
+5. Always end actionable responses with: [OFFICER APPROVAL REQUIRED]
+6. Respond in clear, formal English suitable for government records.
+7. Keep responses concise — officers are busy.
+
+You have access to real iHRMS data provided in context below.
+"""</span>
+
+<span class="kw">class</span> <span class="fn">OllamaClient</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        self.base_url = settings.OLLAMA_URL
+        self.model    = settings.OLLAMA_MODEL
+
+    <span class="kw">async def</span> <span class="fn">chat</span>(
+        self,
+        user_message: str,
+        context: str = <span class="st">""</span>,
+        history: list = <span class="kw">None</span>
+    ) -> str:
+        <span class="st">"""Single-shot chat with context injection."""</span>
+        messages = [{<span class="st">"role"</span>: <span class="st">"system"</span>, <span class="st">"content"</span>: SYSTEM_PROMPT}]
+
+        <span class="kw">if</span> context:
+            messages.append({
+                <span class="st">"role"</span>: <span class="st">"system"</span>,
+                <span class="st">"content"</span>: <span class="st">f"LIVE DATA FROM iHRMS:\n{context}"</span>
+            })
+
+        <span class="kw">if</span> history:
+            messages.extend(history[-<span class="nm">6</span>:])  <span class="cm"># last 3 exchanges</span>
+
+        messages.append({<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: user_message})
+
+        <span class="kw">async with</span> httpx.AsyncClient(timeout=<span class="nm">60</span>) <span class="kw">as</span> client:
+            resp = <span class="kw">await</span> client.post(
+                <span class="st">f"{self.base_url}/api/chat"</span>,
+                json={
+                    <span class="st">"model"</span>: self.model,
+                    <span class="st">"messages"</span>: messages,
+                    <span class="st">"stream"</span>: <span class="kw">False</span>,
+                    <span class="st">"options"</span>: {
+                        <span class="st">"temperature"</span>: <span class="nm">0.2</span>,   <span class="cm"># Low temp = factual, consistent</span>
+                        <span class="st">"num_ctx"</span>: <span class="nm">8192</span>       <span class="cm"># Context window</span>
+                    }
+                }
+            )
+            resp.raise_for_status()
+            <span class="kw">return</span> resp.json()[<span class="st">"message"</span>][<span class="st">"content"</span>]
+
+    <span class="kw">async def</span> <span class="fn">stream_chat</span>(
+        self, user_message: str, context: str = <span class="st">""</span>
+    ) -> AsyncIterator[str]:
+        <span class="st">"""Streaming response for real-time chat feel."""</span>
+        messages = [
+            {<span class="st">"role"</span>: <span class="st">"system"</span>, <span class="st">"content"</span>: SYSTEM_PROMPT},
+            {<span class="st">"role"</span>: <span class="st">"user"</span>,   <span class="st">"content"</span>: <span class="st">f"{context}\n\n{user_message"</span>} <span class="kw">if</span> context <span class="kw">else</span> user_message}
+        ]
+        <span class="kw">async with</span> httpx.AsyncClient(timeout=<span class="nm">120</span>) <span class="kw">as</span> client:
+            <span class="kw">async with</span> client.stream(
+                <span class="st">"POST"</span>, <span class="st">f"{self.base_url}/api/chat"</span>,
+                json={<span class="st">"model"</span>: self.model, <span class="st">"messages"</span>: messages, <span class="st">"stream"</span>: <span class="kw">True</span>}
+            ) <span class="kw">as</span> resp:
+                <span class="kw">async for</span> line <span class="kw">in</span> resp.aiter_lines():
+                    <span class="kw">if</span> line:
+                        chunk = json.loads(line)
+                        <span class="kw">if</span> <span class="kw">not</span> chunk.get(<span class="st">"done"</span>):
+                            <span class="kw">yield</span> chunk[<span class="st">"message"</span>][<span class="st">"content"</span>]
+
+llm = <span class="fn">OllamaClient</span>()</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHASE 3 ══ -->
+  <div class="phase" id="phase3">
+    <div class="phase-badge">Phase 03 — MCP Server</div>
+    <h2>Python MCP Host Server</h2>
+    <p class="phase-sub">The MCP server is the governance layer — it registers tools, enforces policy, and is the only component that can call the LLM or the database.</p>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">6</div>
+        <div class="step-title">Build the core MCP server</div>
+        <div class="step-tag tag-code">PYTHON</div>
+      </div>
+      <div class="step-body">
+        <p>Create <code>backend/mcp_server.py</code>:</p>
+<pre><code><span class="cm"># backend/mcp_server.py</span>
+<span class="kw">import</span> json, time
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass, field
+<span class="kw">from</span> typing <span class="kw">import</span> Callable, Any
+<span class="kw">from</span> audit <span class="kw">import</span> audit_log
+<span class="kw">from</span> llm_client <span class="kw">import</span> llm
+
+<span class="cm"># ── Tool definition ──────────────────────────────────────────────</span>
+@dataclass
+<span class="kw">class</span> <span class="fn">MCPTool</span>:
+    name:        str
+    description: str
+    parameters:  dict            <span class="cm"># JSON Schema</span>
+    handler:     Callable        <span class="cm"># async function</span>
+    read_only:   bool = <span class="kw">True</span>    <span class="cm"># write tools need extra HITL gate</span>
+    requires_approval: bool = <span class="kw">False</span>
+
+<span class="cm"># ── MCP Host ─────────────────────────────────────────────────────</span>
+<span class="kw">class</span> <span class="fn">MCPServer</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        self._tools: dict[str, MCPTool] = {}
+        self._policy = {
+            <span class="st">"max_tokens_per_call"</span>: <span class="nm">4096</span>,
+            <span class="st">"allowed_write_tools"</span>: [],   <span class="cm"># locked in pilot</span>
+            <span class="st">"require_hitl_for"</span>: [<span class="st">"draft_reply"</span>, <span class="st">"generate_mis"</span>],
+        }
+
+    <span class="kw">def</span> <span class="fn">register</span>(self, tool: MCPTool):
+        self._tools[tool.name] = tool
+        <span class="fn">print</span>(<span class="st">f"[MCP] Registered tool: {tool.name}"</span>)
+
+    <span class="kw">async def</span> <span class="fn">call_tool</span>(
+        self, tool_name: str, args: dict, officer_id: str
+    ) -> dict:
+        <span class="kw">if</span> tool_name <span class="kw">not in</span> self._tools:
+            <span class="kw">raise</span> ValueError(<span class="st">f"Unknown tool: {tool_name}"</span>)
+
+        tool = self._tools[tool_name]
+
+        <span class="cm"># Policy gate: no write tools in pilot</span>
+        <span class="kw">if not</span> tool.read_only <span class="kw">and</span> tool_name <span class="kw">not in</span> self._policy[<span class="st">"allowed_write_tools"</span>]:
+            <span class="kw">raise</span> PermissionError(<span class="st">f"Write tool '{tool_name}' blocked by MCP policy"</span>)
+
+        start = time.time()
+        result = <span class="kw">await</span> tool.handler(**args)
+        elapsed = round((time.time() - start) * <span class="nm">1000</span>)
+
+        <span class="cm"># Audit every tool call</span>
+        <span class="kw">await</span> <span class="fn">audit_log</span>(
+            officer_id=officer_id,
+            action=<span class="st">f"tool_call:{tool_name}"</span>,
+            details={<span class="st">"args"</span>: args, <span class="st">"elapsed_ms"</span>: elapsed},
+            ai_generated=<span class="kw">True</span>
+        )
+        <span class="kw">return</span> {<span class="st">"tool"</span>: tool_name, <span class="st">"result"</span>: result, <span class="st">"ms"</span>: elapsed}
+
+    <span class="kw">async def</span> <span class="fn">run_agent</span>(
+        self,
+        prompt: str,
+        officer_id: str,
+        conversation_history: list = <span class="kw">None</span>
+    ) -> dict:
+        <span class="st">"""
+        Core agent loop:
+        1. Classify intent → choose tools
+        2. Call tools to fetch iHRMS context
+        3. Build enriched prompt → call LLM
+        4. Return response + tool traces + HITL flag
+        """</span>
+        tool_calls = []
+        context_parts = []
+
+        <span class="cm"># Step 1: Classify intent</span>
+        intent = <span class="fn">_classify_intent</span>(prompt)
+
+        <span class="cm"># Step 2: Fetch relevant iHRMS data</span>
+        <span class="kw">for</span> tool_name <span class="kw">in</span> intent[<span class="st">"tools"</span>]:
+            <span class="kw">try</span>:
+                result = <span class="kw">await</span> self.<span class="fn">call_tool</span>(
+                    tool_name,
+                    args=intent.get(<span class="st">"tool_args"</span>, {}).get(tool_name, {}),
+                    officer_id=officer_id
+                )
+                tool_calls.append(result)
+                context_parts.append(<span class="st">f"[{tool_name}]: {json.dumps(result['result'])}"</span>)
+            <span class="kw">except</span> Exception <span class="kw">as</span> e:
+                tool_calls.append({<span class="st">"tool"</span>: tool_name, <span class="st">"error"</span>: str(e)})
+
+        <span class="cm"># Step 3: Call LLM with enriched context</span>
+        context = <span class="st">"\n"</span>.join(context_parts)
+        response = <span class="kw">await</span> llm.<span class="fn">chat</span>(prompt, context=context, history=conversation_history)
+
+        <span class="cm"># Step 4: Detect if HITL needed</span>
+        needs_hitl = <span class="fn">_needs_hitl</span>(response, intent)
+
+        <span class="kw">return</span> {
+            <span class="st">"response"</span>: response,
+            <span class="st">"tool_calls"</span>: tool_calls,
+            <span class="st">"agent_chain"</span>: intent[<span class="st">"agents"</span>],
+            <span class="st">"needs_hitl"</span>: needs_hitl,
+        }
+
+    <span class="kw">def</span> <span class="fn">list_tools</span>(self):
+        <span class="kw">return</span> [
+            {<span class="st">"name"</span>: t.name, <span class="st">"description"</span>: t.description, <span class="st">"read_only"</span>: t.read_only}
+            <span class="kw">for</span> t <span class="kw">in</span> self._tools.values()
+        ]
+
+<span class="cm"># ── Intent classifier ────────────────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">_classify_intent</span>(prompt: str) -> dict:
+    p = prompt.lower()
+    <span class="kw">if</span> <span class="kw">any</span>(w <span class="kw">in</span> p <span class="kw">for</span> w <span class="kw">in</span> [<span class="st">"leave"</span>, <span class="st">"cl "</span>, <span class="st">"earned leave"</span>]):
+        <span class="kw">return</span> {<span class="st">"tools"</span>: [<span class="st">"get_leave_applications"</span>, <span class="st">"check_leave_balance"</span>],
+                <span class="st">"agents"</span>: [<span class="st">"coordinator"</span>, <span class="st">"leave"</span>]}
+    <span class="kw">if</span> <span class="kw">any</span>(w <span class="kw">in</span> p <span class="kw">for</span> w <span class="kw">in</span> [<span class="st">"rti"</span>, <span class="st">"right to information"</span>]):
+        <span class="kw">return</span> {<span class="st">"tools"</span>: [<span class="st">"get_rti_applications"</span>, <span class="st">"check_rti_deadlines"</span>],
+                <span class="st">"agents"</span>: [<span class="st">"coordinator"</span>, <span class="st">"rti"</span>]}
+    <span class="kw">if</span> <span class="kw">any</span>(w <span class="kw">in</span> p <span class="kw">for</span> w <span class="kw">in</span> [<span class="st">"tour"</span>, <span class="st">"ta/da"</span>, <span class="st">"travel"</span>]):
+        <span class="kw">return</span> {<span class="st">"tools"</span>: [<span class="st">"get_tour_requests"</span>, <span class="st">"calculate_tada"</span>],
+                <span class="st">"agents"</span>: [<span class="st">"coordinator"</span>, <span class="st">"tour"</span>]}
+    <span class="kw">if</span> <span class="kw">any</span>(w <span class="kw">in</span> p <span class="kw">for</span> w <span class="kw">in</span> [<span class="st">"employee"</span>, <span class="st">"ihrms"</span>, <span class="st">"payroll"</span>, <span class="st">"service book"</span>]):
+        <span class="kw">return</span> {<span class="st">"tools"</span>: [<span class="st">"get_employee_master"</span>, <span class="st">"validate_payroll"</span>],
+                <span class="st">"agents"</span>: [<span class="st">"coordinator"</span>, <span class="st">"hrdata"</span>]}
+    <span class="kw">if</span> <span class="kw">any</span>(w <span class="kw">in</span> p <span class="kw">for</span> w <span class="kw">in</span> [<span class="st">"mis"</span>, <span class="st">"report"</span>, <span class="st">"pendency"</span>]):
+        <span class="kw">return</span> {<span class="st">"tools"</span>: [<span class="st">"get_pendency_report"</span>],
+                <span class="st">"agents"</span>: [<span class="st">"coordinator"</span>, <span class="st">"mis"</span>]}
+    <span class="kw">return</span> {<span class="st">"tools"</span>: [], <span class="st">"agents"</span>: [<span class="st">"coordinator"</span>]}
+
+<span class="kw">def</span> <span class="fn">_needs_hitl</span>(response: str, intent: dict) -> bool:
+    action_words = [<span class="st">"draft"</span>, <span class="st">"recommend"</span>, <span class="st">"approve"</span>, <span class="st">"circulate"</span>, <span class="st">"send"</span>]
+    <span class="kw">return</span> <span class="kw">any</span>(w <span class="kw">in</span> response.lower() <span class="kw">for</span> w <span class="kw">in</span> action_words)
+
+mcp = <span class="fn">MCPServer</span>()</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHASE 4 ══ -->
+  <div class="phase" id="phase4">
+    <div class="phase-badge">Phase 04 — iHRMS Database</div>
+    <h2>iHRMS PostgreSQL Connector</h2>
+    <p class="phase-sub">Connect to the C-DAC iHRMS backend database with read-only access. The schema below reflects typical iHRMS table naming — adjust column names to match your actual DB.</p>
+
+    <div class="callout warn">
+      <div class="callout-icon">🔒</div>
+      <div class="callout-body">
+        <strong>DATABASE ACCESS REQUIREMENT</strong>
+        Before running this, your iHRMS DBA must: (1) create a dedicated read-only user <code>sahayak_readonly</code>, (2) grant SELECT-only on specific tables, (3) ensure the DB is accessible from your application server. Never use the admin DB user.
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">7</div>
+        <div class="step-title">Create the iHRMS database models and connector</div>
+        <div class="step-tag tag-db">DATABASE</div>
+      </div>
+      <div class="step-body">
+        <p>Create <code>backend/ihrms_db.py</code>. These models map to C-DAC iHRMS table structures:</p>
+<pre><code><span class="cm"># backend/ihrms_db.py</span>
+<span class="kw">from</span> sqlalchemy.ext.asyncio <span class="kw">import</span> create_async_engine, AsyncSession
+<span class="kw">from</span> sqlalchemy.orm <span class="kw">import</span> declarative_base, sessionmaker
+<span class="kw">from</span> sqlalchemy <span class="kw">import</span> Column, String, Integer, Date, Numeric, Boolean, Text, select
+<span class="kw">from</span> config <span class="kw">import</span> settings
+<span class="kw">from</span> datetime <span class="kw">import</span> date
+
+engine = <span class="fn">create_async_engine</span>(settings.DB_URL, echo=<span class="kw">False</span>)
+AsyncSessionLocal = <span class="fn">sessionmaker</span>(engine, class_=AsyncSession, expire_on_commit=<span class="kw">False</span>)
+Base = <span class="fn">declarative_base</span>()
+
+<span class="cm"># ── iHRMS Table Models ────────────────────────────────────────────</span>
+<span class="cm"># Adjust table/column names to match YOUR iHRMS schema version</span>
+
+<span class="kw">class</span> <span class="fn">EmployeeMaster</span>(Base):
+    __tablename__ = <span class="st">"emp_master"</span>      <span class="cm"># confirm table name with DBA</span>
+    emp_id       = Column(String, primary_key=<span class="kw">True</span>)
+    emp_name     = Column(String)
+    designation  = Column(String)
+    department   = Column(String)
+    grade_pay    = Column(Numeric)
+    pay_level    = Column(String)
+    status       = Column(String)      <span class="cm"># Active / On Deputation / Retired</span>
+    doj          = Column(Date)        <span class="cm"># Date of joining</span>
+    section      = Column(String)
+
+<span class="kw">class</span> <span class="fn">LeaveApplication</span>(Base):
+    __tablename__ = <span class="st">"leave_applications"</span>
+    leave_id     = Column(Integer, primary_key=<span class="kw">True</span>)
+    emp_id       = Column(String)
+    leave_type   = Column(String)      <span class="cm"># CL / EL / ML / LTC</span>
+    from_date    = Column(Date)
+    to_date      = Column(Date)
+    days         = Column(Integer)
+    status       = Column(String)      <span class="cm"># Pending / Approved / Rejected</span>
+    applied_on   = Column(Date)
+    remarks      = Column(Text)
+
+<span class="kw">class</span> <span class="fn">LeaveBalance</span>(Base):
+    __tablename__ = <span class="st">"leave_balance"</span>
+    emp_id       = Column(String, primary_key=<span class="kw">True</span>)
+    leave_type   = Column(String)
+    balance_days = Column(Numeric)
+    year         = Column(Integer)
+
+<span class="kw">class</span> <span class="fn">TourRequest</span>(Base):
+    __tablename__ = <span class="st">"tour_requests"</span>
+    tour_id      = Column(Integer, primary_key=<span class="kw">True</span>)
+    emp_id       = Column(String)
+    destination  = Column(String)
+    from_date    = Column(Date)
+    to_date      = Column(Date)
+    purpose      = Column(String)
+    status       = Column(String)
+    estimated_ta = Column(Numeric)
+    estimated_da = Column(Numeric)
+    sanction_no  = Column(String)
+
+<span class="kw">class</span> <span class="fn">PayrollRecord</span>(Base):
+    __tablename__ = <span class="st">"payroll_monthly"</span>
+    payroll_id   = Column(Integer, primary_key=<span class="kw">True</span>)
+    emp_id       = Column(String)
+    month        = Column(Integer)
+    year         = Column(Integer)
+    basic_pay    = Column(Numeric)
+    grade_pay    = Column(Numeric)
+    da           = Column(Numeric)
+    net_pay      = Column(Numeric)
+
+<span class="kw">class</span> <span class="fn">RTIApplication</span>(Base):
+    __tablename__ = <span class="st">"rti_applications"</span>
+    rti_id       = Column(String, primary_key=<span class="kw">True</span>)
+    applicant    = Column(String)
+    subject      = Column(Text)
+    received_on  = Column(Date)
+    due_date     = Column(Date)
+    status       = Column(String)
+    assigned_to  = Column(String)
+    section      = Column(String)
+
+<span class="cm"># ── Database access helpers ───────────────────────────────────────</span>
+<span class="kw">async def</span> <span class="fn">get_db</span>():
+    <span class="kw">async with</span> <span class="fn">AsyncSessionLocal</span>() <span class="kw">as</span> session:
+        <span class="kw">yield</span> session
+
+<span class="kw">async def</span> <span class="fn">fetch_all</span>(model, filters=<span class="kw">None</span>, limit=<span class="nm">50</span>):
+    <span class="st">"""Generic read-only fetch helper."""</span>
+    <span class="kw">async with</span> <span class="fn">AsyncSessionLocal</span>() <span class="kw">as</span> session:
+        q = <span class="fn">select</span>(model)
+        <span class="kw">if</span> filters:
+            <span class="kw">for</span> f <span class="kw">in</span> filters:
+                q = q.<span class="fn">where</span>(f)
+        q = q.<span class="fn">limit</span>(limit)
+        result = <span class="kw">await</span> session.<span class="fn">execute</span>(q)
+        <span class="kw">return</span> result.<span class="fn">scalars</span>().<span class="fn">all</span>()</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">8</div>
+        <div class="step-title">Create the read-only DB user in PostgreSQL</div>
+        <div class="step-tag tag-db">SQL</div>
+      </div>
+      <div class="step-body">
+        <p>Run this as the iHRMS DBA/admin user on the PostgreSQL server:</p>
+<pre><code><span class="cm">-- Run as postgres superuser on the iHRMS DB server</span>
+
+<span class="kw">CREATE USER</span> sahayak_readonly <span class="kw">WITH PASSWORD</span> <span class="st">'your_secure_password'</span>;
+
+<span class="cm">-- Grant connection</span>
+<span class="kw">GRANT CONNECT ON DATABASE</span> ihrms_prod <span class="kw">TO</span> sahayak_readonly;
+
+<span class="cm">-- Grant read-only on specific tables only</span>
+<span class="kw">GRANT USAGE ON SCHEMA</span> public <span class="kw">TO</span> sahayak_readonly;
+<span class="kw">GRANT SELECT ON</span>
+    emp_master,
+    leave_applications,
+    leave_balance,
+    tour_requests,
+    payroll_monthly,
+    rti_applications
+<span class="kw">TO</span> sahayak_readonly;
+
+<span class="cm">-- Confirm: sahayak_readonly can ONLY SELECT, cannot INSERT/UPDATE/DELETE</span>
+<span class="kw">REVOKE INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA</span> public <span class="kw">FROM</span> sahayak_readonly;</code></pre>
+        <div class="callout success">
+          <div class="callout-icon">✓</div>
+          <div class="callout-body">
+            <strong>TEST THE CONNECTION</strong>
+            <code>psql -h localhost -U sahayak_readonly -d ihrms_prod -c "SELECT emp_id, emp_name FROM emp_master LIMIT 3;"</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHASE 5 ══ -->
+  <div class="phase" id="phase5">
+    <div class="phase-badge">Phase 05 — Agent Tools</div>
+    <h2>MCP Tool Definitions</h2>
+    <p class="phase-sub">Each tool is a Python async function that queries iHRMS and returns structured data. Register all tools with the MCP server.</p>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">9</div>
+        <div class="step-title">Leave & Tour tools (iHRMS)</div>
+        <div class="step-tag tag-code">PYTHON</div>
+      </div>
+      <div class="step-body">
+<pre><code><span class="cm"># backend/tools/leave_tools.py</span>
+<span class="kw">from</span> ihrms_db <span class="kw">import</span> fetch_all, LeaveApplication, LeaveBalance, EmployeeMaster
+<span class="kw">from</span> datetime <span class="kw">import</span> date
+<span class="kw">from</span> sqlalchemy <span class="kw">import</span> select
+
+<span class="kw">async def</span> <span class="fn">get_leave_applications</span>(
+    dept: str = <span class="kw">None</span>, status: str = <span class="st">"Pending"</span>
+) -> list:
+    <span class="st">"""Fetch leave applications from iHRMS, optionally filtered."""</span>
+    filters = []
+    <span class="kw">if</span> status: filters.append(LeaveApplication.status == status)
+    apps = <span class="kw">await</span> <span class="fn">fetch_all</span>(LeaveApplication, filters=filters)
+    <span class="kw">return</span> [
+        {
+            <span class="st">"leave_id"</span>: a.leave_id, <span class="st">"emp_id"</span>: a.emp_id,
+            <span class="st">"type"</span>: a.leave_type, <span class="st">"from"</span>: str(a.from_date),
+            <span class="st">"to"</span>: str(a.to_date), <span class="st">"days"</span>: a.days,
+            <span class="st">"status"</span>: a.status
+        }
+        <span class="kw">for</span> a <span class="kw">in</span> apps
+    ]
+
+<span class="kw">async def</span> <span class="fn">check_leave_balance</span>(emp_id: str) -> dict:
+    <span class="st">"""Get leave balance for an employee from iHRMS."""</span>
+    balances = <span class="kw">await</span> <span class="fn">fetch_all</span>(LeaveBalance, [LeaveBalance.emp_id == emp_id])
+    <span class="kw">return</span> {b.leave_type: float(b.balance_days) <span class="kw">for</span> b <span class="kw">in</span> balances}
+
+<span class="kw">async def</span> <span class="fn">detect_leave_anomalies</span>() -> list:
+    <span class="st">"""Flag leave cluster patterns (e.g. audit period)."""</span>
+    apps = <span class="kw">await</span> <span class="fn">get_leave_applications</span>(status=<span class="kw">None</span>)
+    <span class="kw">from</span> collections <span class="kw">import</span> Counter
+    date_counts = <span class="fn">Counter</span>()
+    <span class="kw">for</span> a <span class="kw">in</span> apps:
+        date_counts[a[<span class="st">"from"</span>]] += <span class="nm">1</span>
+    <span class="kw">return</span> [
+        {<span class="st">"date"</span>: d, <span class="st">"count"</span>: c, <span class="st">"flag"</span>: <span class="st">"High absence cluster"</span>}
+        <span class="kw">for</span> d, c <span class="kw">in</span> date_counts.items() <span class="kw">if</span> c >= <span class="nm">3</span>
+    ]</code></pre>
+
+<pre><code><span class="cm"># backend/tools/tour_tools.py</span>
+<span class="kw">from</span> ihrms_db <span class="kw">import</span> fetch_all, TourRequest
+
+CITY_CLASS = {<span class="st">"Delhi"</span>:<span class="st">"A"</span>,<span class="st">"Mumbai"</span>:<span class="st">"A"</span>,<span class="st">"Bengaluru"</span>:<span class="st">"A"</span>,<span class="st">"Chennai"</span>:<span class="st">"A"</span>}
+DA_RATES   = {<span class="st">"A"</span>:<span class="nm">3900</span>, <span class="st">"B"</span>:<span class="nm">2800</span>, <span class="st">"C"</span>:<span class="nm">2000</span>}  <span class="cm"># per SR rules</span>
+
+<span class="kw">async def</span> <span class="fn">get_tour_requests</span>(status: str = <span class="kw">None</span>) -> list:
+    filters = []
+    <span class="kw">if</span> status: filters.append(TourRequest.status == status)
+    tours = <span class="kw">await</span> <span class="fn">fetch_all</span>(TourRequest, filters=filters)
+    <span class="kw">return</span> [
+        {
+            <span class="st">"tour_id"</span>: t.tour_id, <span class="st">"emp_id"</span>: t.emp_id,
+            <span class="st">"dest"</span>: t.destination, <span class="st">"from"</span>: str(t.from_date),
+            <span class="st">"to"</span>: str(t.to_date), <span class="st">"purpose"</span>: t.purpose,
+            <span class="st">"status"</span>: t.status, <span class="st">"sanction_no"</span>: t.sanction_no
+        }
+        <span class="kw">for</span> t <span class="kw">in</span> tours
+    ]
+
+<span class="kw">async def</span> <span class="fn">calculate_tada</span>(
+    destination: str, days: int, grade_pay: float
+) -> dict:
+    city_class = CITY_CLASS.get(destination, <span class="st">"B"</span>)
+    da_per_day = DA_RATES[city_class]
+    da_total   = da_per_day * days
+    ta_estimate = <span class="nm">3500</span> <span class="kw">if</span> grade_pay >= <span class="nm">4600</span> <span class="kw">else</span> <span class="nm">2500</span>
+    <span class="kw">return</span> {
+        <span class="st">"destination"</span>: destination,
+        <span class="st">"city_class"</span>: city_class,
+        <span class="st">"da_per_day"</span>: da_per_day, <span class="st">"da_total"</span>: da_total,
+        <span class="st">"ta_estimate"</span>: ta_estimate,
+        <span class="st">"total"</span>: da_total + ta_estimate,
+        <span class="st">"advance_required"</span>: (da_total + ta_estimate) > <span class="nm">10000</span>
+    }</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">10</div>
+        <div class="step-title">Register all tools with the MCP server</div>
+        <div class="step-tag tag-code">PYTHON</div>
+      </div>
+      <div class="step-body">
+        <p>Create <code>backend/tools/__init__.py</code> to auto-register all tools on startup:</p>
+<pre><code><span class="cm"># backend/tools/__init__.py</span>
+<span class="kw">from</span> mcp_server <span class="kw">import</span> mcp, MCPTool
+<span class="kw">from</span> tools.leave_tools <span class="kw">import</span> get_leave_applications, check_leave_balance, detect_leave_anomalies
+<span class="kw">from</span> tools.tour_tools  <span class="kw">import</span> get_tour_requests, calculate_tada
+<span class="kw">from</span> tools.rti_tools   <span class="kw">import</span> get_rti_applications, check_rti_deadlines
+<span class="kw">from</span> tools.file_tools  <span class="kw">import</span> get_pending_files, get_pendency_report
+<span class="kw">from</span> tools.hr_tools    <span class="kw">import</span> get_employee_master, validate_payroll
+
+<span class="kw">def</span> <span class="fn">register_all_tools</span>():
+    tools = [
+        MCPTool(<span class="st">"get_leave_applications"</span>,
+                <span class="st">"Fetch leave applications from iHRMS"</span>,
+                {<span class="st">"status"</span>: <span class="st">"string"</span>}, get_leave_applications),
+        MCPTool(<span class="st">"check_leave_balance"</span>,
+                <span class="st">"Get employee leave balance from iHRMS"</span>,
+                {<span class="st">"emp_id"</span>: <span class="st">"string"</span>}, check_leave_balance),
+        MCPTool(<span class="st">"detect_leave_anomalies"</span>,
+                <span class="st">"Detect clustering or anomalous leave patterns"</span>,
+                {}, detect_leave_anomalies),
+        MCPTool(<span class="st">"get_tour_requests"</span>,
+                <span class="st">"Fetch tour requests from iHRMS"</span>,
+                {<span class="st">"status"</span>: <span class="st">"string"</span>}, get_tour_requests),
+        MCPTool(<span class="st">"calculate_tada"</span>,
+                <span class="st">"Calculate TA/DA per SR rules"</span>,
+                {<span class="st">"destination"</span>: <span class="st">"string"</span>, <span class="st">"days"</span>: <span class="st">"int"</span>, <span class="st">"grade_pay"</span>: <span class="st">"float"</span>},
+                calculate_tada),
+        MCPTool(<span class="st">"get_rti_applications"</span>,
+                <span class="st">"Fetch RTI applications and deadlines"</span>,
+                {<span class="st">"status"</span>: <span class="st">"string"</span>}, get_rti_applications),
+        MCPTool(<span class="st">"check_rti_deadlines"</span>,
+                <span class="st">"Check which RTI replies are approaching deadline"</span>,
+                {<span class="st">"days_ahead"</span>: <span class="st">"int"</span>}, check_rti_deadlines),
+        MCPTool(<span class="st">"get_pending_files"</span>,
+                <span class="st">"Get pending files from file management system"</span>,
+                {<span class="st">"section"</span>: <span class="st">"string"</span>}, get_pending_files),
+        MCPTool(<span class="st">"get_pendency_report"</span>,
+                <span class="st">"Generate section-wise pendency MIS"</span>,
+                {}, get_pendency_report),
+        MCPTool(<span class="st">"get_employee_master"</span>,
+                <span class="st">"Fetch employee records from iHRMS"</span>,
+                {<span class="st">"dept"</span>: <span class="st">"string"</span>}, get_employee_master),
+        MCPTool(<span class="st">"validate_payroll"</span>,
+                <span class="st">"Cross-check payroll against service book"</span>,
+                {<span class="st">"month"</span>: <span class="st">"int"</span>, <span class="st">"year"</span>: <span class="st">"int"</span>}, validate_payroll),
+    ]
+    <span class="kw">for</span> t <span class="kw">in</span> tools:
+        mcp.<span class="fn">register</span>(t)</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHASE 6 ══ -->
+  <div class="phase" id="phase6">
+    <div class="phase-badge">Phase 06 — API Gateway</div>
+    <h2>FastAPI Gateway (backend/main.py)</h2>
+    <p class="phase-sub">This is what the React frontend talks to. It exposes clean REST endpoints and a WebSocket for streaming.</p>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">11</div>
+        <div class="step-title">Build the FastAPI app</div>
+        <div class="step-tag tag-code">PYTHON</div>
+      </div>
+      <div class="step-body">
+<pre><code><span class="cm"># backend/main.py</span>
+<span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI, WebSocket, HTTPException
+<span class="kw">from</span> fastapi.middleware.cors <span class="kw">import</span> CORSMiddleware
+<span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel
+<span class="kw">from</span> typing <span class="kw">import</span> Optional
+<span class="kw">import</span> json
+
+<span class="kw">from</span> config <span class="kw">import</span> settings
+<span class="kw">from</span> mcp_server <span class="kw">import</span> mcp
+<span class="kw">from</span> audit <span class="kw">import</span> audit_log, get_audit_log
+<span class="kw">from</span> scheduler <span class="kw">import</span> get_pending_notifications, mark_notif_seen
+<span class="kw">from</span> tools <span class="kw">import</span> register_all_tools
+
+app = <span class="fn">FastAPI</span>(title=<span class="st">"SAHAYAK-AI MCP Gateway"</span>, version=<span class="st">"1.0.0"</span>)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_methods=[<span class="st">"*"</span>],
+    allow_headers=[<span class="st">"*"</span>],
+)
+
+@app.on_event(<span class="st">"startup"</span>)
+<span class="kw">async def</span> <span class="fn">startup</span>():
+    <span class="fn">register_all_tools</span>()     <span class="cm"># register all MCP tools</span>
+    <span class="fn">print</span>(<span class="st">"[SAHAYAK-AI] MCP Server ready. Tools:"</span>, len(mcp._tools))
+
+<span class="cm"># ── Request / Response models ─────────────────────────────────────</span>
+<span class="kw">class</span> <span class="fn">ChatRequest</span>(BaseModel):
+    message:    str
+    officer_id: str = <span class="st">"AK10234"</span>
+    history:    list = []
+
+<span class="kw">class</span> <span class="fn">ApprovalRequest</span>(BaseModel):
+    action_id:  str
+    officer_id: str
+    decision:   str      <span class="cm"># "approved" | "rejected"</span>
+    reason:     Optional[str] = <span class="kw">None</span>
+
+<span class="cm"># ── Endpoints ─────────────────────────────────────────────────────</span>
+@app.<span class="fn">get</span>(<span class="st">"/"</span>)
+<span class="kw">async def</span> <span class="fn">health</span>():
+    <span class="kw">return</span> {<span class="st">"status"</span>: <span class="st">"running"</span>, <span class="st">"tools"</span>: len(mcp._tools)}
+
+@app.<span class="fn">post</span>(<span class="st">"/api/chat"</span>)
+<span class="kw">async def</span> <span class="fn">chat</span>(req: ChatRequest):
+    <span class="st">"""Main chat endpoint — runs MCP agent loop, returns response."""</span>
+    <span class="kw">try</span>:
+        result = <span class="kw">await</span> mcp.<span class="fn">run_agent</span>(
+            prompt=req.message,
+            officer_id=req.officer_id,
+            conversation_history=req.history
+        )
+        <span class="kw">return</span> {<span class="st">"ok"</span>: <span class="kw">True</span>, **result}
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="kw">raise</span> HTTPException(status_code=<span class="nm">500</span>, detail=str(e))
+
+@app.<span class="fn">get</span>(<span class="st">"/api/notifications"</span>)
+<span class="kw">async def</span> <span class="fn">get_notifications</span>(officer_id: str = <span class="st">"AK10234"</span>):
+    <span class="st">"""Return pending proactive notifications for this officer."""</span>
+    <span class="kw">return</span> {<span class="st">"notifications"</span>: <span class="kw">await</span> <span class="fn">get_pending_notifications</span>(officer_id)}
+
+@app.<span class="fn">post</span>(<span class="st">"/api/notifications/{notif_id}/seen"</span>)
+<span class="kw">async def</span> <span class="fn">mark_seen</span>(notif_id: str, officer_id: str = <span class="st">"AK10234"</span>):
+    <span class="kw">await</span> <span class="fn">mark_notif_seen</span>(notif_id, officer_id)
+    <span class="kw">return</span> {<span class="st">"ok"</span>: <span class="kw">True</span>}
+
+@app.<span class="fn">post</span>(<span class="st">"/api/approve"</span>)
+<span class="kw">async def</span> <span class="fn">approve_action</span>(req: ApprovalRequest):
+    <span class="st">"""Log HITL approval / rejection to immutable audit trail."""</span>
+    <span class="kw">await</span> <span class="fn">audit_log</span>(
+        officer_id=req.officer_id,
+        action=<span class="st">f"hitl:{req.decision}:{req.action_id}"</span>,
+        details={<span class="st">"reason"</span>: req.reason},
+        ai_generated=<span class="kw">False</span>
+    )
+    <span class="kw">return</span> {<span class="st">"ok"</span>: <span class="kw">True</span>, <span class="st">"logged"</span>: <span class="kw">True</span>}
+
+@app.<span class="fn">get</span>(<span class="st">"/api/audit"</span>)
+<span class="kw">async def</span> <span class="fn">audit</span>(officer_id: str = <span class="kw">None</span>, limit: int = <span class="nm">100</span>):
+    <span class="kw">return</span> {<span class="st">"logs"</span>: <span class="kw">await</span> <span class="fn">get_audit_log</span>(officer_id=officer_id, limit=limit)}
+
+@app.<span class="fn">get</span>(<span class="st">"/api/tools"</span>)
+<span class="kw">async def</span> <span class="fn">tools</span>():
+    <span class="kw">return</span> {<span class="st">"tools"</span>: mcp.<span class="fn">list_tools</span>()}
+
+<span class="cm"># ── WebSocket: streaming chat ─────────────────────────────────────</span>
+@app.<span class="fn">websocket</span>(<span class="st">"/ws/chat"</span>)
+<span class="kw">async def</span> <span class="fn">ws_chat</span>(websocket: WebSocket):
+    <span class="kw">await</span> websocket.<span class="fn">accept</span>()
+    <span class="kw">try</span>:
+        <span class="kw">while True</span>:
+            data = json.<span class="fn">loads</span>(<span class="kw">await</span> websocket.<span class="fn">receive_text</span>())
+            <span class="kw">async for</span> chunk <span class="kw">in</span> mcp.<span class="fn">stream_agent</span>(data[<span class="st">"message"</span>], data.get(<span class="st">"officer_id"</span>)):
+                <span class="kw">await</span> websocket.<span class="fn">send_text</span>(json.<span class="fn">dumps</span>({<span class="st">"chunk"</span>: chunk}))
+            <span class="kw">await</span> websocket.<span class="fn">send_text</span>(json.<span class="fn">dumps</span>({<span class="st">"done"</span>: <span class="kw">True</span>}))
+    <span class="kw">except</span> Exception:
+        <span class="kw">await</span> websocket.<span class="fn">close</span>()</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHASE 7 ══ -->
+  <div class="phase" id="phase7">
+    <div class="phase-badge">Phase 07 — Frontend Wiring</div>
+    <h2>Connect React App to Backend</h2>
+    <p class="phase-sub">Replace mock data and simulated responses in the JSX with real API calls to the FastAPI backend.</p>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">12</div>
+        <div class="step-title">Create the API client in React</div>
+        <div class="step-tag tag-code">JAVASCRIPT</div>
+      </div>
+      <div class="step-body">
+        <p>Create <code>frontend/src/api.js</code>:</p>
+<pre><code><span class="cm">// frontend/src/api.js</span>
+<span class="kw">const</span> BASE = <span class="st">"http://localhost:8000"</span>;
+
+<span class="kw">export const</span> <span class="fn">sendChat</span> = <span class="kw">async</span> (message, history = [], officerId = <span class="st">"AK10234"</span>) => {
+  <span class="kw">const</span> resp = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="st">`${BASE}/api/chat`</span>, {
+    method: <span class="st">"POST"</span>,
+    headers: { <span class="st">"Content-Type"</span>: <span class="st">"application/json"</span> },
+    body: <span class="fn">JSON.stringify</span>({ message, officer_id: officerId, history })
+  });
+  <span class="kw">if</span> (!resp.ok) <span class="kw">throw new</span> <span class="fn">Error</span>(<span class="kw">await</span> resp.<span class="fn">text</span>());
+  <span class="kw">return</span> resp.<span class="fn">json</span>();
+  <span class="cm">// Returns: { response, tool_calls, agent_chain, needs_hitl }</span>
+};
+
+<span class="kw">export const</span> <span class="fn">fetchNotifications</span> = <span class="kw">async</span> (officerId = <span class="st">"AK10234"</span>) => {
+  <span class="kw">const</span> resp = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="st">`${BASE}/api/notifications?officer_id=${officerId}`</span>);
+  <span class="kw">return</span> (await resp.<span class="fn">json</span>()).notifications;
+};
+
+<span class="kw">export const</span> <span class="fn">submitApproval</span> = <span class="kw">async</span> (actionId, decision, reason = <span class="st">""</span>) => {
+  <span class="kw">await</span> <span class="fn">fetch</span>(<span class="st">`${BASE}/api/approve`</span>, {
+    method: <span class="st">"POST"</span>,
+    headers: { <span class="st">"Content-Type"</span>: <span class="st">"application/json"</span> },
+    body: <span class="fn">JSON.stringify</span>({
+      action_id: actionId, officer_id: <span class="st">"AK10234"</span>,
+      decision, reason
+    })
+  });
+};
+
+<span class="kw">export const</span> <span class="fn">fetchAuditLog</span> = <span class="kw">async</span> (limit = <span class="nm">100</span>) => {
+  <span class="kw">const</span> resp = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="st">`${BASE}/api/audit?limit=${limit}`</span>);
+  <span class="kw">return</span> (await resp.<span class="fn">json</span>()).logs;
+};</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">13</div>
+        <div class="step-title">Replace mock sendMessage in ChatPanel</div>
+        <div class="step-tag tag-code">JAVASCRIPT</div>
+      </div>
+      <div class="step-body">
+        <p>In <code>App.js</code>, replace the <code>buildAgentResponse</code> mock call inside <code>sendMessage</code> with a real API call:</p>
+<pre><code><span class="cm">// In ChatPanel component — replace the mock section with this:</span>
+<span class="kw">import</span> { sendChat, submitApproval } <span class="kw">from</span> <span class="st">"../api"</span>;
+
+<span class="cm">// Inside sendMessage async function, replace the mock lines with:</span>
+<span class="kw">const</span> historyForAPI = messages
+  .<span class="fn">filter</span>(m => m.role === <span class="st">"user"</span> || m.role === <span class="st">"assistant"</span>)
+  .<span class="fn">slice</span>(-<span class="nm">6</span>)
+  .<span class="fn">map</span>(m => ({ role: m.role, content: m.text }));
+
+<span class="kw">const</span> result = <span class="kw">await</span> <span class="fn">sendChat</span>(userText, historyForAPI);
+
+<span class="cm">// result.response     → the LLM response text</span>
+<span class="cm">// result.tool_calls   → array of { tool, result, ms }</span>
+<span class="cm">// result.agent_chain  → e.g. ["coordinator", "leave"]</span>
+<span class="cm">// result.needs_hitl   → boolean</span>
+
+<span class="kw">const</span> aid = msgIdRef.current++;
+<span class="fn">setMessages</span>(prev => [...prev, {
+  id: aid, role: <span class="st">"assistant"</span>,
+  agentChain: result.agent_chain,
+  toolCalls:  result.tool_calls,
+  text:       result.response,
+  hitl: result.needs_hitl ? {
+    type: <span class="st">"approve_draft"</span>,
+    label: <span class="st">"Approve this action"</span>,
+    rejectLabel: <span class="st">"Reject"</span>,
+    actionId: <span class="st">`action-${aid}`</span>  <span class="cm">// used in submitApproval</span>
+  } : <span class="kw">null</span>
+}]);
+
+<span class="cm">// When officer clicks Approve/Reject in HITLCard, call:</span>
+<span class="cm">// submitApproval(msg.hitl.actionId, "approved", "");</span></code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">14</div>
+        <div class="step-title">Poll notifications from backend</div>
+        <div class="step-tag tag-code">JAVASCRIPT</div>
+      </div>
+      <div class="step-body">
+        <p>In the App shell, replace the timer-based <code>NOTIF_SEEDS</code> with real backend polling:</p>
+<pre><code><span class="cm">// In App() component — replace the NOTIF_SEEDS useEffect with:</span>
+<span class="kw">import</span> { fetchNotifications } <span class="kw">from</span> <span class="st">"./api"</span>;
+
+<span class="fn">useEffect</span>(() => {
+  <span class="kw">const</span> <span class="fn">pollNotifs</span> = <span class="kw">async</span> () => {
+    <span class="kw">try</span> {
+      <span class="kw">const</span> fresh = <span class="kw">await</span> <span class="fn">fetchNotifications</span>();
+      <span class="kw">const</span> newOnes = fresh.<span class="fn">filter</span>(n => !seenIds.<span class="fn">has</span>(n.id));
+      <span class="kw">if</span> (newOnes.length > <span class="nm">0</span>) {
+        <span class="fn">setNotifs</span>(prev => [...newOnes, ...prev]);
+        <span class="fn">setToasts</span>(prev => [...prev, ...newOnes.<span class="fn">map</span>(n => ({
+          ...n, toastKey: n.id + Date.<span class="fn">now</span>()
+        }))]);
+        <span class="fn">setSeenIds</span>(prev => <span class="kw">new</span> <span class="fn">Set</span>([...prev, ...newOnes.<span class="fn">map</span>(n => n.id)]));
+      }
+    } <span class="kw">catch</span> (e) { console.error(<span class="st">"Notification poll failed:"</span>, e); }
+  };
+  <span class="fn">pollNotifs</span>();                           <span class="cm">// immediate on load</span>
+  <span class="kw">const</span> t = <span class="fn">setInterval</span>(pollNotifs, <span class="nm">30000</span>); <span class="cm">// then every 30s</span>
+  <span class="kw">return</span> () => <span class="fn">clearInterval</span>(t);
+}, [seenIds]);</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHASE 8 ══ -->
+  <div class="phase" id="phase8">
+    <div class="phase-badge">Phase 08 — Scheduler</div>
+    <h2>Proactive Notification Agent Scheduler</h2>
+    <p class="phase-sub">The scheduler runs background jobs that query iHRMS, detect conditions, and push notifications to officers.</p>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">15</div>
+        <div class="step-title">Build the notification scheduler</div>
+        <div class="step-tag tag-code">PYTHON</div>
+      </div>
+      <div class="step-body">
+<pre><code><span class="cm"># backend/scheduler.py</span>
+<span class="kw">from</span> apscheduler.schedulers.asyncio <span class="kw">import</span> AsyncIOScheduler
+<span class="kw">from</span> datetime <span class="kw">import</span> date, timedelta
+<span class="kw">import</span> uuid, json
+
+<span class="cm"># In-memory notification store (replace with DB for production)</span>
+_notifications: dict[str, list] = {}
+
+scheduler = <span class="fn">AsyncIOScheduler</span>()
+
+<span class="cm"># ── Monitoring jobs ───────────────────────────────────────────────</span>
+<span class="kw">async def</span> <span class="fn">check_rti_deadlines_job</span>():
+    <span class="kw">from</span> ihrms_db <span class="kw">import</span> fetch_all, RTIApplication
+    rtis = <span class="kw">await</span> <span class="fn">fetch_all</span>(RTIApplication, [RTIApplication.status == <span class="st">"Open"</span>])
+    <span class="kw">for</span> rti <span class="kw">in</span> rtis:
+        days_left = (rti.due_date - date.<span class="fn">today</span>()).days
+        <span class="kw">if</span> <span class="nm">0</span> &lt;= days_left &lt;= <span class="nm">5</span>:
+            <span class="kw">await</span> <span class="fn">push_notification</span>(
+                officer_id=rti.assigned_to,
+                notif={
+                    <span class="st">"id"</span>: <span class="st">f"rti-{rti.rti_id}-{date.today()}"</span>,
+                    <span class="st">"type"</span>: <span class="st">"urgent"</span> <span class="kw">if</span> days_left &lt;= <span class="nm">3</span> <span class="kw">else</span> <span class="st">"warning"</span>,
+                    <span class="st">"agent"</span>: <span class="st">"RTI Deadline Monitor"</span>,
+                    <span class="st">"title"</span>: <span class="st">f"RTI Deadline in {days_left} day(s)"</span>,
+                    <span class="st">"body"</span>: <span class="st">f"{rti.rti_id}: {rti.subject[:80]}. Due: {rti.due_date}"</span>,
+                    <span class="st">"cta"</span>: <span class="st">"Draft reply now"</span>,
+                    <span class="st">"ctaPrompt"</span>: <span class="st">f"Draft an RTI reply for application {rti.rti_id}"</span>,
+                    <span class="st">"ref"</span>: rti.rti_id, <span class="st">"icon"</span>: <span class="st">"⚖️"</span>, <span class="st">"color"</span>: <span class="st">"#E53935"</span>,
+                    <span class="st">"module"</span>: <span class="st">"rti"</span>
+                }
+            )
+
+<span class="kw">async def</span> <span class="fn">check_leave_anomalies_job</span>():
+    <span class="kw">from</span> tools.leave_tools <span class="kw">import</span> detect_leave_anomalies
+    anomalies = <span class="kw">await</span> <span class="fn">detect_leave_anomalies</span>()
+    <span class="kw">for</span> a <span class="kw">in</span> anomalies:
+        <span class="kw">await</span> <span class="fn">push_notification</span>(
+            officer_id=<span class="st">"AK10234"</span>,  <span class="cm"># Section officer</span>
+            notif={
+                <span class="st">"id"</span>: <span class="st">f"leave-anomaly-{a['date']}"</span>,
+                <span class="st">"type"</span>: <span class="st">"warning"</span>,
+                <span class="st">"agent"</span>: <span class="st">"Leave Pattern Agent"</span>,
+                <span class="st">"title"</span>: <span class="st">"Leave Cluster Detected"</span>,
+                <span class="st">"body"</span>: <span class="st">f"{a['count']} staff on leave on {a['date']}. {a['flag']}"</span>,
+                <span class="st">"cta"</span>: <span class="st">"Review leave applications"</span>,
+                <span class="st">"ctaPrompt"</span>: <span class="st">"Check leave policy compliance for upcoming leaves"</span>,
+                <span class="st">"ref"</span>: <span class="st">"iHRMS Leave Module"</span>, <span class="st">"icon"</span>: <span class="st">"🗓"</span>, <span class="st">"color"</span>: <span class="st">"#F7941D"</span>,
+                <span class="st">"module"</span>: <span class="st">"leave"</span>
+            }
+        )
+
+<span class="kw">async def</span> <span class="fn">check_payroll_anomalies_job</span>():
+    <span class="kw">from</span> tools.hr_tools <span class="kw">import</span> validate_payroll
+    <span class="kw">from</span> datetime <span class="kw">import</span> datetime
+    issues = <span class="kw">await</span> <span class="fn">validate_payroll</span>(datetime.now().month, datetime.now().year)
+    <span class="kw">for</span> issue <span class="kw">in</span> issues:
+        <span class="kw">await</span> <span class="fn">push_notification</span>(
+            officer_id=<span class="st">"AK10234"</span>,
+            notif={
+                <span class="st">"id"</span>: <span class="st">f"payroll-{issue['emp_id']}"</span>,
+                <span class="st">"type"</span>: <span class="st">"warning"</span>,
+                <span class="st">"agent"</span>: <span class="st">"iHRMS Data Validator"</span>,
+                <span class="st">"title"</span>: <span class="st">"Payroll Anomaly Detected"</span>,
+                <span class="st">"body"</span>: issue[<span class="st">"description"</span>],
+                <span class="st">"cta"</span>: <span class="st">"View & raise correction"</span>,
+                <span class="st">"ctaPrompt"</span>: <span class="st">"Validate iHRMS employee data and report discrepancies"</span>,
+                <span class="st">"ref"</span>: <span class="st">f"EMD · {issue['emp_id']}"</span>, <span class="st">"icon"</span>: <span class="st">"👤"</span>, <span class="st">"color"</span>: <span class="st">"#14B8A6"</span>,
+                <span class="st">"module"</span>: <span class="st">"hrdata"</span>
+            }
+        )
+
+<span class="cm"># ── Notification store helpers ────────────────────────────────────</span>
+<span class="kw">async def</span> <span class="fn">push_notification</span>(officer_id: str, notif: dict):
+    <span class="kw">if</span> officer_id <span class="kw">not in</span> _notifications:
+        _notifications[officer_id] = []
+    ids = [n[<span class="st">"id"</span>] <span class="kw">for</span> n <span class="kw">in</span> _notifications[officer_id]]
+    <span class="kw">if</span> notif[<span class="st">"id"</span>] <span class="kw">not in</span> ids:   <span class="cm"># no duplicates</span>
+        _notifications[officer_id].insert(<span class="nm">0</span>, notif)
+
+<span class="kw">async def</span> <span class="fn">get_pending_notifications</span>(officer_id: str) -> list:
+    <span class="kw">return</span> _notifications.get(officer_id, [])
+
+<span class="kw">async def</span> <span class="fn">mark_notif_seen</span>(notif_id: str, officer_id: str):
+    _notifications[officer_id] = [
+        n <span class="kw">for</span> n <span class="kw">in</span> _notifications.get(officer_id, []) <span class="kw">if</span> n[<span class="st">"id"</span>] != notif_id
+    ]
+
+<span class="cm"># ── Start all scheduled jobs ──────────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">start_scheduler</span>():
+    scheduler.<span class="fn">add_job</span>(check_rti_deadlines_job,    <span class="st">"interval"</span>, minutes=<span class="nm">15</span>)
+    scheduler.<span class="fn">add_job</span>(check_leave_anomalies_job,  <span class="st">"interval"</span>, minutes=<span class="nm">30</span>)
+    scheduler.<span class="fn">add_job</span>(check_payroll_anomalies_job, <span class="st">"interval"</span>, hours=<span class="nm">6</span>)
+    scheduler.<span class="fn">start</span>()
+    <span class="fn">print</span>(<span class="st">"[SAHAYAK-AI] Notification scheduler started"</span>)</code></pre>
+        <p>Add <code>start_scheduler()</code> to your <code>startup</code> event in <code>main.py</code>.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHASE 9 ══ -->
+  <div class="phase" id="phase9">
+    <div class="phase-badge">Phase 09 — Audit</div>
+    <h2>Immutable Audit Log</h2>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">16</div>
+        <div class="step-title">Build the audit logging module</div>
+        <div class="step-tag tag-db">DATABASE</div>
+      </div>
+      <div class="step-body">
+<pre><code><span class="cm"># backend/audit.py</span>
+<span class="kw">import</span> aiosqlite, json
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+<span class="kw">from</span> config <span class="kw">import</span> settings
+
+<span class="kw">async def</span> <span class="fn">_get_db</span>():
+    db = <span class="kw">await</span> aiosqlite.<span class="fn">connect</span>(settings.AUDIT_DB)
+    <span class="kw">await</span> db.<span class="fn">execute</span>(<span class="st">"""
+        CREATE TABLE IF NOT EXISTS audit_log (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            ts          TEXT NOT NULL,
+            officer_id  TEXT NOT NULL,
+            action      TEXT NOT NULL,
+            details     TEXT,
+            ai_generated INTEGER DEFAULT 1
+        )
+    """</span>)
+    <span class="kw">await</span> db.<span class="fn">commit</span>()
+    <span class="kw">return</span> db
+
+<span class="kw">async def</span> <span class="fn">audit_log</span>(
+    officer_id: str, action: str,
+    details: dict = <span class="kw">None</span>, ai_generated: bool = <span class="kw">True</span>
+):
+    db = <span class="kw">await</span> <span class="fn">_get_db</span>()
+    <span class="kw">async with</span> db:
+        <span class="kw">await</span> db.<span class="fn">execute</span>(
+            <span class="st">"INSERT INTO audit_log (ts,officer_id,action,details,ai_generated) VALUES (?,?,?,?,?)"</span>,
+            (datetime.<span class="fn">now</span>().<span class="fn">isoformat</span>(), officer_id, action,
+             json.<span class="fn">dumps</span>(details <span class="kw">or</span> {}), int(ai_generated))
+        )
+        <span class="kw">await</span> db.<span class="fn">commit</span>()
+
+<span class="kw">async def</span> <span class="fn">get_audit_log</span>(officer_id: str = <span class="kw">None</span>, limit: int = <span class="nm">100</span>) -> list:
+    db = <span class="kw">await</span> <span class="fn">_get_db</span>()
+    q = <span class="st">"SELECT ts,officer_id,action,details,ai_generated FROM audit_log"</span>
+    params = []
+    <span class="kw">if</span> officer_id:
+        q += <span class="st">" WHERE officer_id=?"</span>; params.append(officer_id)
+    q += <span class="st">f" ORDER BY id DESC LIMIT {limit}"</span>
+    <span class="kw">async with</span> db.<span class="fn">execute</span>(q, params) <span class="kw">as</span> cursor:
+        rows = <span class="kw">await</span> cursor.<span class="fn">fetchall</span>()
+    <span class="kw">return</span> [
+        {<span class="st">"ts"</span>:r[<span class="nm">0</span>],<span class="st">"officer"</span>:r[<span class="nm">1</span>],<span class="st">"action"</span>:r[<span class="nm">2</span>],
+         <span class="st">"details"</span>:json.<span class="fn">loads</span>(r[<span class="nm">3</span>]),<span class="st">"ai"</span>:bool(r[<span class="nm">4</span>])}
+        <span class="kw">for</span> r <span class="kw">in</span> rows
+    ]</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHASE 10 ══ -->
+  <div class="phase" id="phase10">
+    <div class="phase-badge">Phase 10 — Run & Test</div>
+    <h2>Running the Full Stack</h2>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">17</div>
+        <div class="step-title">Start all services</div>
+        <div class="step-tag tag-cli">CLI</div>
+      </div>
+      <div class="step-body">
+        <p>Open three terminal windows:</p>
+<pre><code><span class="cm"># Terminal 1 — Ollama LLM</span>
+ollama serve
+
+<span class="cm"># Terminal 2 — Python backend</span>
+cd sahayak-ai/backend
+source venv/bin/activate   <span class="cm"># or venv\Scripts\activate on Windows</span>
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+<span class="cm"># Terminal 3 — React frontend</span>
+cd sahayak-ai/frontend
+npm start</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">18</div>
+        <div class="step-title">End-to-end smoke tests</div>
+        <div class="step-tag tag-test">TEST</div>
+      </div>
+      <div class="step-body">
+<pre><code><span class="cm"># Test 1: Backend health check</span>
+curl http://localhost:8000/
+<span class="cm"># Expected: {"status":"running","tools":11}</span>
+
+<span class="cm"># Test 2: Chat endpoint</span>
+curl -X POST http://localhost:8000/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message":"Show pending leave applications","officer_id":"AK10234"}'
+<span class="cm"># Expected: {ok:true, response:"...", tool_calls:[...], agent_chain:[...]}</span>
+
+<span class="cm"># Test 3: Notifications</span>
+curl http://localhost:8000/api/notifications?officer_id=AK10234
+
+<span class="cm"># Test 4: Tools list</span>
+curl http://localhost:8000/api/tools</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">19</div>
+        <div class="step-title">Verify iHRMS connection</div>
+        <div class="step-tag tag-test">TEST</div>
+      </div>
+      <div class="step-body">
+<pre><code><span class="cm"># Quick DB connection test (run from backend folder)</span>
+python3 -c "
+import asyncio
+from ihrms_db import fetch_all, EmployeeMaster
+
+async def test():
+    results = await fetch_all(EmployeeMaster, limit=3)
+    for r in results:
+        print(r.emp_id, r.emp_name, r.designation)
+
+asyncio.run(test())
+"</code></pre>
+        <div class="callout warn">
+          <div class="callout-icon">⚠</div>
+          <div class="callout-body">
+            <strong>IF DB IS NOT YET AVAILABLE</strong>
+            Set <code>IHRMS_DB_HOST=mock</code> in .env and create a <code>mock_db.py</code> that returns the same MOCK data from the React app. This lets you develop the full stack before C-DAC grants DB access.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- FINAL CHECKLIST -->
+  <h3 style="font-size:20px;margin-bottom:16px">Pre-Demo Checklist</h3>
+  <ul class="checklist">
+    <li>Ollama running and model responds to test prompt</li>
+    <li>FastAPI starts with no errors, all 11 tools registered</li>
+    <li>PostgreSQL read-only user created, SELECT-only verified</li>
+    <li>iHRMS tables accessible and returning real data</li>
+    <li>React app calls <code>/api/chat</code> and gets real LLM responses</li>
+    <li>Notification bell receives backend-pushed alerts</li>
+    <li>Clicking notification CTA opens chat with pre-loaded prompt</li>
+    <li>HITL approve/reject calls <code>/api/approve</code> and logs to audit DB</li>
+    <li>Audit log at <code>/api/audit</code> shows all tool calls + officer decisions</li>
+    <li>.env file excluded from Git (<code>.gitignore</code>)</li>
+  </ul>
+
+  <!-- QUICK REFERENCE -->
+  <h3 style="font-size:20px;margin:28px 0 14px">API Quick Reference</h3>
+  <table>
+    <thead><tr><th>Method</th><th>Endpoint</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>POST</code></td><td><code>/api/chat</code></td><td>Send officer prompt → MCP agent → LLM → response</td></tr>
+      <tr><td><code>GET</code></td><td><code>/api/notifications</code></td><td>Fetch pending proactive alerts for officer</td></tr>
+      <tr><td><code>POST</code></td><td><code>/api/notifications/{id}/seen</code></td><td>Dismiss a notification</td></tr>
+      <tr><td><code>POST</code></td><td><code>/api/approve</code></td><td>Log HITL approval or rejection</td></tr>
+      <tr><td><code>GET</code></td><td><code>/api/audit</code></td><td>Retrieve immutable audit trail</td></tr>
+      <tr><td><code>GET</code></td><td><code>/api/tools</code></td><td>List all registered MCP tools</td></tr>
+      <tr><td><code>WS</code></td><td><code>/ws/chat</code></td><td>Streaming WebSocket chat (real-time tokens)</td></tr>
+    </tbody>
+  </table>
+
+</div>
+
+<footer>
+  <span>SAHAYAK-AI</span> &nbsp;·&nbsp; Full Integration Build Guide &nbsp;·&nbsp;
+  Local LLM (Ollama) + C-DAC iHRMS via MCP Server &nbsp;·&nbsp;
+  All data stays within government network boundary
+</footer>
+
+</body>
+</html>
