@@ -1,0 +1,24 @@
+-- Run as postgres superuser on the iHRMS DB server
+
+CREATE USER sahayak_readonly WITH PASSWORD 'your_secure_password';
+
+-- Grant connection
+GRANT CONNECT ON DATABASE ihrms_prod TO sahayak_readonly;
+
+-- Grant read-only on specific tables only
+GRANT USAGE ON SCHEMA public TO sahayak_readonly;
+GRANT SELECT ON
+    emp_master,
+    leave_applications,
+    leave_balance,
+    tour_requests,
+    payroll_monthly,
+    rti_applications
+TO sahayak_readonly;
+
+-- Confirm: sahayak_readonly can ONLY SELECT, cannot INSERT/UPDATE/DELETE
+REVOKE INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public FROM sahayak_readonly;
+
+
+#TEST THE CONNECTION
+#psql -h localhost -U sahayak_readonly -d ihrms_prod -c "SELECT emp_id, emp_name FROM emp_master LIMIT 3;"

@@ -1,0 +1,13 @@
+# backend/requirements.txt
+fastapi
+uvicorn
+httpx
+sqlalchemy
+asyncpg
+psycopg2-binary
+pydantic
+python-dotenv
+apscheduler
+python-jose
+aiofiles
+mcp
