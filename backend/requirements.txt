@@ -1,13 +1,13 @@
-# backend/requirements.txt
-fastapi
-uvicorn
-httpx
-sqlalchemy
-asyncpg
-psycopg2-binary
-pydantic
-python-dotenv
-apscheduler
-python-jose
-aiofiles
-mcp
+# SAHAYAK-AI Backend Requirements
+# Compatible with Python 3.11 / 3.12 / 3.13
+# ⚠ Python 3.14 is pre-release — asyncpg & pydantic-core have no wheels yet
+# Fix: use pre-built binary wheels with --only-binary flags (see install command below)
+
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+sqlalchemy[asyncio]==2.0.30
+asyncpg==0.29.0
+httpx==0.27.0
+pydantic==2.7.1
+pydantic-settings==2.2.1
+python-dotenv==1.0.1
